@@ -1,0 +1,1 @@
+enum MCPE {} // MCPE namespace

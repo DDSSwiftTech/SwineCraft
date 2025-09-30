@@ -1,0 +1,1 @@
+public enum RakNet {} // placeholder for namespace
