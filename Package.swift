@@ -8,11 +8,13 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.86.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.15.0"),
-        .package(url: "https://github.com/apple/swift-atomics.git", from: "1.3.0")
+        .package(url: "https://github.com/apple/swift-atomics.git", from: "1.3.0"),
+        .package(url: "https://github.com/apple/swift-nio-extras.git", from: "1.29.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
+        .systemLibrary(name: "SwiftZlib"),
         .target(name: "SwakNet",
         dependencies: [
             .product(name: "NIO", package: "swift-nio")
@@ -20,8 +22,10 @@ let package = Package(
         .executableTarget(
             name: "SwineCraft_XP", dependencies: [
                 .target(name: "SwakNet"),
+                .byName(name: "SwiftZlib"),
                 .product(name: "NIO", package: "swift-nio"),
-                .product(name: "Crypto", package: "swift-crypto")
+                .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "NIOExtras", package: "swift-nio-extras"),
             ]),
         .testTarget(
             name: "SwineCraft_XPTests"
