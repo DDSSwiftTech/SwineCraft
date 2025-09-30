@@ -2,21 +2,21 @@ import NIOCore
 
 extension MCPE {
     struct VarInt: ExpressibleByIntegerLiteral {
-        typealias IntegerLiteralType = Int64
+        typealias IntegerLiteralType = Int32
 
-        private let backingInt: Int64
+        var backingInt: Int32 = 0
 
-        init(integerLiteral value: Int64) {
+        init(integerLiteral value: IntegerLiteralType) {
             self.backingInt = value
         }
 
         init(buffer: inout ByteBuffer) {
-            var result: Int64 = 0
+            var result: Int32 = 0
 
-            var idx: Int64 = 0
+            var idx: Int32 = 0
 
             while let currentByte: UInt8 = buffer.readInteger(){
-                result |= Int64(currentByte & 0b01111111) << (7 * idx)
+                result |= Int32(currentByte & 0b01111111) << (7 * idx)
 
                 if (currentByte >> 7) == 0 {
                     break
@@ -29,7 +29,33 @@ extension MCPE {
         }
 
         func encode() -> ByteBuffer {
-            
+            guard self.backingInt != 0 else {
+                return ByteBuffer(integer: UInt8(0))
+            }
+
+            var buffer = ByteBuffer()
+
+            let tempInt = self.backingInt
+
+            // Split backing int into groups of 7 bits
+
+            var intPieces = [
+                UInt8(tempInt & 0x7F),
+                UInt8(tempInt >> 7 & 0x7F),
+                UInt8(tempInt >> 14 & 0x7F),
+                UInt8(tempInt >> 21 & 0x7F),
+                UInt8(tempInt >> 28 & 0x0F)
+            ]
+
+            while intPieces.last == 0 {
+                intPieces.removeLast() // remove leading zeroes
+            }
+
+            for idx in 0..<intPieces.count - 1 {
+                buffer.writeInteger(intPieces[idx] | (idx < intPieces.count - 1 ? 0x80 : 0))
+            }
+
+            return buffer
         }
     }
 }
