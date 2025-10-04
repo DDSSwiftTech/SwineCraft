@@ -3,7 +3,7 @@ import NIOCore
 extension RakNet {
     typealias ConnectionID = RakNet.Address
 
-    struct ConnectionState {
+    struct ConnectionState: Sendable {
         var connectionID: ConnectionID
         var connectionMTU: UInt16
         var clientTime: UInt64
@@ -11,6 +11,7 @@ extension RakNet {
         var pendingFragments: [DataPacket.Message]
         var pendingOutOfOrder: [DataPacket.Message]
         var pendingUnackedPackets: [DataPacket]
+        var reliableFrameIDX: UInt32 // UInt24LE
         var clientAddresses: [Address]
     }
 
@@ -21,8 +22,11 @@ extension RakNet {
         case NoActiveState // received a decapsulation for non-existant state, or perhaps state that was lost
     }
 
-    final class StateHandler {
-        var activeConnectionState: [ConnectionID: ConnectionState] = [:]
+    @MainActor
+    final class StateHandler: Sendable {
+        static let shared: RakNet.StateHandler = StateHandler()
+
+        private var activeConnectionState: [ConnectionID: ConnectionState] = [:]
 
         // This is run as early as possible to initialize state once the intent to connect is established
         // Most of these values will get modified almost immediately
@@ -35,6 +39,7 @@ extension RakNet {
                 pendingFragments: [],
                 pendingOutOfOrder: [],
                 pendingUnackedPackets: [],
+                reliableFrameIDX: 0,
                 clientAddresses: []
             )
         }
@@ -124,29 +129,33 @@ extension RakNet {
         }
 
         func encapsulate(packets: [RakNet.Packet], connectionID: ConnectionID) -> DataPacket {
+            return encapsulate(buffers: packets.map {try! $0.encode()}, connectionID: connectionID)
+        }
+
+        func encapsulate(buffers: [ByteBuffer], connectionID: ConnectionID) -> DataPacket {
             let seqNum = self.activeConnectionState[connectionID]!.clientDataPacketSequenceNumber
 
             self.activeConnectionState[connectionID]!.clientDataPacketSequenceNumber += 1
             var messages: [DataPacket.Message] = []
 
-            for packet in packets {
-                let packetBytes = try! packet.encode()
-
+            for buffer in buffers {
                 let dataMessage = DataPacket.Message(
                     flags: .RELIABLE_ORDERED,
                     isFragment: false,
-                    length: UInt16(packetBytes.readableBytes * 8),
-                    reliableFrameIndex: 0,
+                    length: UInt16(buffer.readableBytes * 8),
+                    reliableFrameIndex: self.activeConnectionState[connectionID]?.reliableFrameIDX,
                     sequencedFrameIndex: nil,
-                    orderedFrameIndex: 0,
+                    orderedFrameIndex: self.activeConnectionState[connectionID]?.reliableFrameIDX,
                     orderChannel: 0,
                     compoundSize: nil,
                     compoundID: nil,
                     index: nil,
-                    body: packetBytes
+                    body: buffer
                 )
 
                 messages.append(dataMessage)
+
+                self.activeConnectionState[connectionID]?.reliableFrameIDX += 1
             }
 
             var returnData = DataPacket(sequenceNumber: seqNum, messages: messages)

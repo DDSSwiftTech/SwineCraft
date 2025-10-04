@@ -35,23 +35,21 @@ extension MCPE {
 
             var buffer = ByteBuffer()
 
-            let tempInt = self.backingInt
-
             // Split backing int into groups of 7 bits
 
             var intPieces = [
-                UInt8(tempInt & 0x7F),
-                UInt8(tempInt >> 7 & 0x7F),
-                UInt8(tempInt >> 14 & 0x7F),
-                UInt8(tempInt >> 21 & 0x7F),
-                UInt8(tempInt >> 28 & 0x0F)
+                UInt8(backingInt & 0x7F),
+                UInt8(backingInt >> 7 & 0x7F),
+                UInt8(backingInt >> 14 & 0x7F),
+                UInt8(backingInt >> 21 & 0x7F),
+                UInt8(backingInt >> 28 & 0x0F)
             ]
 
             while intPieces.last == 0 {
                 intPieces.removeLast() // remove leading zeroes
             }
 
-            for idx in 0..<intPieces.count - 1 {
+            for idx in 0..<intPieces.count {
                 buffer.writeInteger(intPieces[idx] | (idx < intPieces.count - 1 ? 0x80 : 0))
             }
 

@@ -10,13 +10,15 @@ final public class SwakNetServer {
         
         .channelInitializer { chan in
             chan.eventLoop.makeCompletedFuture {
+                let handler = RakNet.Handler(
+                    SERVER_ID_STRING: serverIDString
+                )
+                
                 try chan.pipeline.syncOperations.addHandlers([
-                    RakNet.Handler(
-                        SERVER_ID_STRING: serverIDString
-                    ),
+                    handler,
+                    RakNetOutboundHandler(),
                     dataHandler
                 ])
-
             }
         }
 

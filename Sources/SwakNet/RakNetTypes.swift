@@ -2,12 +2,12 @@ import Foundation
 import NIOCore
 
 extension RakNet {
-    public enum AddressIP: Hashable {
+    public enum AddressIP: Hashable, Sendable {
         case v4(UInt8, UInt8, UInt8, UInt8)
         case v6(UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, UInt16, addr_family: UInt16, flow_info: UInt32, scope_id: UInt32)
     }
     
-    public struct Address: Hashable {
+    public struct Address: Hashable, Sendable {
         let ip: AddressIP
         let port: UInt16
 
