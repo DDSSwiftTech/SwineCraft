@@ -116,9 +116,11 @@ extension RakNet {
                             combinedBuffer.writeBuffer(&body)
                         }
 
-                        self.activeConnectionState[activeStateStruct.connectionID]!.pendingFragments = [] // reset pending fragments, all have been used
+                        self.activeConnectionState[activeStateStruct.connectionID]?.pendingFragments = [] // reset pending fragments, all have been used
 
                         returnBuffers.append( combinedBuffer)
+                    } else {
+                        self.activeConnectionState[activeStateStruct.connectionID]?.pendingFragments.append(message)
                     }
                 } else {
                     returnBuffers.append(message.body)

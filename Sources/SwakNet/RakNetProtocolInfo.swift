@@ -1,5 +1,5 @@
 extension RakNet {
     public class ProtocolInfo {
-        public static let VERSION = 82
+        public static let VERSION = 844
     }
 }

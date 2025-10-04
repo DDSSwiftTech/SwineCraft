@@ -7,7 +7,6 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
     let stateHandler = MCPEStateHandler()
 
-
     func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
         let event = event as! RakNetEvent
 
