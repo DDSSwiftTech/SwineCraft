@@ -2,7 +2,7 @@ import NIOCore
 import Foundation
 import FoundationNetworking
 
-extension ByteBuffer {
+public extension ByteBuffer {
     typealias UInt24 = UInt32
     
     mutating func readMagic() -> UInt128? {
