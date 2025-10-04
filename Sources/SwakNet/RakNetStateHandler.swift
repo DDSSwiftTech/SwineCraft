@@ -101,7 +101,7 @@ extension RakNet {
                 return [.failure(.Decapsulation(.NoActiveState))]
             }
 
-            var returnBuffers: [ByteBuffer] = []
+            var messageDecodeResults: [Result<ByteBuffer, RakNet.Error>] = [] // This holds the decapsulated buffers for the various received messages
 
             for message in packet.messages {
                 if message.isFragment {
@@ -118,16 +118,16 @@ extension RakNet {
 
                         self.activeConnectionState[activeStateStruct.connectionID]?.pendingFragments = [] // reset pending fragments, all have been used
 
-                        returnBuffers.append( combinedBuffer)
+                        messageDecodeResults.append(.success(combinedBuffer))
                     } else {
                         self.activeConnectionState[activeStateStruct.connectionID]?.pendingFragments.append(message)
                     }
                 } else {
-                    returnBuffers.append(message.body)
+                    messageDecodeResults.append(.success(message.body))
                 }
             }
 
-            return returnBuffers.map {.success($0)}
+            return messageDecodeResults
         }
 
         func encapsulate(packets: [RakNet.Packet], connectionID: ConnectionID) -> DataPacket {
