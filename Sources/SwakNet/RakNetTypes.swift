@@ -16,6 +16,15 @@ extension RakNet {
             self.port = port
         }
 
+        private enum CodingKeys: String, CodingKey {
+            case type
+            case octets
+            case addr_family
+            case flow_info
+            case scope_id
+            case port
+        }
+
         func encode() -> ByteBuffer {
             var buffer = ByteBuffer()
 

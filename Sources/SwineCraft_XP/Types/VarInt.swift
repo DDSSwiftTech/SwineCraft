@@ -57,3 +57,11 @@ extension MCPE {
         }
     }
 }
+
+extension ByteBuffer {
+    mutating func readVarInt() -> MCPE.VarInt {
+        var intbuf = ByteBuffer(bytes: self.readBytes(length: 3)!)
+
+        return MCPE.VarInt(buffer: &intbuf)
+    }
+}

@@ -27,9 +27,26 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
         let old_buffer = buffer
 
-        // if !self.stateHandler.stateActive(source: RakNet.Address(from: inboundEnvelope.remoteAddress)!) { // TODO: This will need a revisit
+        if !self.stateHandler.stateActive(source: RakNet.Address(from: inboundEnvelope.remoteAddress)!) { // TODO: This will need a revisit
             let _ = buffer.readBytes(length: 1) // putting the length byte here, don't need it
-        // }
+        } else {
+            guard let compressionMethod = CompressionMethod(rawValue: 0xFF00 | dump(UInt16(buffer.readInteger()! as UInt8))) else {
+                print("bad compression method")
+
+                return
+            }
+
+            switch compressionMethod {
+                case .None:
+                    let bufferLength: MCPE.VarInt = buffer.readVarInt()
+
+                    print(bufferLength)
+
+                    buffer = ByteBuffer(bytes: buffer.readBytes(length: Int(bufferLength.backingInt))!)
+                default:
+                    break
+            }
+        }
 
         switch MCPEPacketType(rawValue: buffer.readInteger()!) {
             case .REQUEST_NETWORK_SETTINGS:
@@ -40,8 +57,8 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 self.stateHandler.initializeState(source: RakNet.Address(from: inboundEnvelope.remoteAddress)!, version: packet.protocolVersion)
 
                 let responsePacket = NetworkSettingsPacket(
-                    compressionThreshold: 256,
-                    compressionMethod: .ZLib,
+                    compressionThreshold: 0,
+                    compressionMethod: .None,
                     clientThrottleEnabled: false,
                     clientThrottleThreshold: 0,
                     clientThrottleScalar: 0
@@ -50,6 +67,12 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 let data = try! responsePacket.encode()
 
                 context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + MCPE.VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+            case .LOGIN:
+                guard let packet = try? LoginPacket(from: &buffer) else {
+                    return
+                }
+                
+                print("RECEIVED LOGIN PACKET")
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 
