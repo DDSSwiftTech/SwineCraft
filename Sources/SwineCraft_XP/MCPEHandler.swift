@@ -45,7 +45,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                     buffer = ByteBuffer(bytes: buffer.readBytes(length: Int(bufferLength.backingInt))!)
                 default:
-                    break
+                    return // We will have to handle ZLIB and Snappy compression, but lets just not for now and come back to this later...
             }
         }
 

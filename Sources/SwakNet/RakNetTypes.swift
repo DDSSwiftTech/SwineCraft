@@ -16,6 +16,26 @@ extension RakNet {
             self.port = port
         }
 
+        func encode() -> ByteBuffer {
+            var buffer = ByteBuffer()
+
+            switch self.ip {
+                case .v4(let oct1, let oct2, let oct3, let oct4):
+                    buffer.writeInteger(UInt8(4)) // IP Type
+                    buffer.writeMultipleIntegers(~(oct1), ~(oct2), ~(oct3), ~(oct4))
+                    buffer.writeInteger(self.port)
+                case .v6(let oct1, let oct2, let oct3, let oct4, let oct5, let oct6, let oct7, let oct8, let addr_family, let flow_info, let scope_id):
+                    buffer.writeInteger(UInt8(6)) // IP Type
+                    buffer.writeInteger(addr_family)
+                    buffer.writeInteger(self.port)
+                    buffer.writeInteger(flow_info)
+                    buffer.writeMultipleIntegers(~(oct1), ~(oct2), ~(oct3), ~(oct4), ~(oct5), ~(oct6), ~(oct7), ~(oct8))
+                    buffer.writeInteger(scope_id)
+            }
+
+            return buffer
+        }
+
         public init?(from socketAddress: SocketAddress) {
             guard let socketIP = socketAddress.ipAddress else {
                 return nil
