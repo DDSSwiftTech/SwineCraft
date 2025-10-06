@@ -11,13 +11,12 @@ struct VarInt: ExpressibleByIntegerLiteral {
 
     init(buffer: inout ByteBuffer) {
         var result: Int32 = 0
-
         var idx: Int32 = 0
 
-        while let currentByte: UInt8 = buffer.readInteger(){
+        while let currentByte: UInt8 = buffer.readInteger() {
             result |= Int32(currentByte & 0b01111111) << (7 * idx)
 
-            if (currentByte >> 7) == 0 {
+            if (currentByte >> 7) == 0 || idx == 4 {
                 break
             }
 
@@ -58,8 +57,6 @@ struct VarInt: ExpressibleByIntegerLiteral {
 
 extension ByteBuffer {
     mutating func readVarInt() -> VarInt {
-        var intbuf = ByteBuffer(bytes: self.readBytes(length: 3)!)
-
-        return VarInt(buffer: &intbuf)
+        return VarInt(buffer: &self)
     }
 }
