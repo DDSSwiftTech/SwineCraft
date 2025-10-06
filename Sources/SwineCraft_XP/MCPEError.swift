@@ -1,6 +1,4 @@
-extension MCPE {
-    enum Error: Swift.Error {
-        case PacketDecode(MCPEPacketType?)
-        case UnknownPacketType
-    }
+enum MCPEError: Swift.Error {
+    case PacketDecode(MCPEPacketType?)
+    case UnknownPacketType
 }

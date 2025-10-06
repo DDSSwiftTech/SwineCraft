@@ -10,10 +10,10 @@ protocol MCPEPacket {
 
 extension MCPEPacket {
     init(from buffer: inout ByteBuffer) throws {
-        throw MCPE.Error.PacketDecode(nil)
+        throw MCPEError.PacketDecode(nil)
     }
 
     func encode() throws -> ByteBuffer {
-        throw MCPE.Error.PacketDecode(nil)
+        throw MCPEError.PacketDecode(nil)
     }
 }

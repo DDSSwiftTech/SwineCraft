@@ -39,7 +39,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
             switch compressionMethod {
                 case .None:
-                    let bufferLength: MCPE.VarInt = buffer.readVarInt()
+                    let bufferLength: VarInt = buffer.readVarInt()
 
                     print(bufferLength)
 
@@ -67,7 +67,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + MCPE.VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case .LOGIN:
                 guard let packet = try? LoginPacket(from: &buffer) else {
                     return
