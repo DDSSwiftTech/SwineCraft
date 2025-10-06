@@ -20,14 +20,15 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
     func errorCaught(context: ChannelHandlerContext, error: any Error) {
     }
-    
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let inboundEnvelope = self.unwrapInboundIn(data)
         var buffer = inboundEnvelope.data
+        let sourceAddress = RakNet.Address(from: inboundEnvelope.remoteAddress)!
 
         let old_buffer = buffer
 
-        if !self.stateHandler.stateActive(source: RakNet.Address(from: inboundEnvelope.remoteAddress)!) { // TODO: This will need a revisit
+        if !self.stateHandler.stateActive(source: sourceAddress) { // TODO: This will need a revisit
             let _ = buffer.readBytes(length: 1) // putting the length byte here, don't need it
         } else {
             guard let compressionMethod = CompressionMethod(rawValue: 0xFF00 | dump(UInt16(buffer.readInteger()! as UInt8))) else {
@@ -54,7 +55,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                     return
                 }
 
-                self.stateHandler.initializeState(source: RakNet.Address(from: inboundEnvelope.remoteAddress)!, version: packet.protocolVersion)
+                self.stateHandler.initializeState(source: sourceAddress, version: packet.protocolVersion)
 
                 let responsePacket = NetworkSettingsPacket(
                     compressionThreshold: 0,
@@ -71,7 +72,9 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 guard let packet = try? LoginPacket(from: &buffer) else {
                     return
                 }
-                
+
+                self.stateHandler.setLoginPacket(packet, forSource: sourceAddress)
+
                 print("RECEIVED LOGIN PACKET")
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")

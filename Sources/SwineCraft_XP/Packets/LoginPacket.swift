@@ -18,8 +18,6 @@ struct LoginPacket: MCPEPacket {
 
         let chainDataLength: UInt32 = jsonDataBuf.readInteger(endianness: .little)!
 
-        print(chainDataLength)
-
         let chainDataString = String(jsonDataBuf.readBytes(length: Int(chainDataLength))!.map {Character(Unicode.Scalar($0))})
 
         do {

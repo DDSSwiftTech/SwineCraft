@@ -13,6 +13,7 @@ class MCPEStateHandler {
         var clientThrottleEnabled: Bool = false
         var clientThrottleThreshold: UInt8 = 0
         var clientThrottleScalar: Float = 0
+        var loginPacket: LoginPacket? = nil
     }
 
     var activeGameStates: [RakNet.Address:MCPEState] = [:]
@@ -29,6 +30,10 @@ class MCPEStateHandler {
 
     func stateActive(source: RakNet.Address) -> Bool {
         return self.activeGameStates.keys.contains(source)
+    }
+
+    func setLoginPacket(_ packet: LoginPacket, forSource source: RakNet.Address) {
+        self.activeGameStates[source]?.loginPacket = packet
     }
 
     init() {}
