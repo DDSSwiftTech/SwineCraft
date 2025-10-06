@@ -1,7 +1,6 @@
-extension RakNet {
-    enum Error: Swift.Error {
-        case PacketDecode(RakNet.PacketType)
-        case Decapsulation(RakNet.DecapsulationFailure)
+
+    enum RakNetError: Swift.Error {
+        case PacketDecode(RakNetPacketType)
+        case Decapsulation(RakNetDecapsulationFailure)
         case UnknownPacketType
     }
-}

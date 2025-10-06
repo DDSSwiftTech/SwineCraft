@@ -5,8 +5,8 @@ enum SequenceNumber {
     case range(ClosedRange<UInt32>)
 }
 
-struct ACKPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .ACK
+struct ACKPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .ACK
     var recordCount: UInt16 {
         switch self.sequenceNumber {
             case .single(_):

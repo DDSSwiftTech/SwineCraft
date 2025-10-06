@@ -5,7 +5,7 @@ class MCPEStateHandler {
     typealias ProtocolVersion = Int32
 
     struct MCPEState {
-        var source: RakNet.Address
+        var source: RakNetAddress
         var protocolVersion: ProtocolVersion
         var activePlayer: Player? = nil
         var compressionThreshold: Int16 = 0
@@ -16,23 +16,23 @@ class MCPEStateHandler {
         var loginPacket: LoginPacket? = nil
     }
 
-    var activeGameStates: [RakNet.Address:MCPEState] = [:]
+    var activeGameStates: [RakNetAddress:MCPEState] = [:]
 
-    func initializeState(source: RakNet.Address, version: ProtocolVersion) {
+    func initializeState(source: RakNetAddress, version: ProtocolVersion) {
         self.activeGameStates[source] = MCPEState(source: source, protocolVersion: version)
     }
 
-    func discardState(source: RakNet.Address) {
+    func discardState(source: RakNetAddress) {
         if self.activeGameStates.keys.contains(source) {
             self.activeGameStates.removeValue(forKey: source)
         }
     }
 
-    func stateActive(source: RakNet.Address) -> Bool {
+    func stateActive(source: RakNetAddress) -> Bool {
         return self.activeGameStates.keys.contains(source)
     }
 
-    func setLoginPacket(_ packet: LoginPacket, forSource source: RakNet.Address) {
+    func setLoginPacket(_ packet: LoginPacket, forSource source: RakNetAddress) {
         self.activeGameStates[source]?.loginPacket = packet
     }
 

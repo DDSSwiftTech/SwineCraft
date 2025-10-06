@@ -1,12 +1,12 @@
 import NIOCore
 
-struct ConnectionRequestAcceptedPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .ONLINE_CONNECTION_REQUEST_ACCEPTED
+struct ConnectionRequestAcceptedPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .ONLINE_CONNECTION_REQUEST_ACCEPTED
 
-    let clientAddress: RakNet.Address
+    let clientAddress: RakNetAddress
     let systemIndex: UInt16 = 0
-    var internalIDs: [RakNet.Address] {
-        var addrs = RakNet.Utils.getLocalInterfaceAddresses().map {RakNet.Address(ip: $0.ip, port: 19132)}
+    var internalIDs: [RakNetAddress] {
+        var addrs = RakNetUtils.getLocalInterfaceAddresses().map {RakNetAddress(ip: $0.ip, port: 19132)}
 
         if addrs.count > 10 {
             addrs = Array(addrs[0...9])
@@ -14,7 +14,7 @@ struct ConnectionRequestAcceptedPacket: RakNet.Packet {
 
         let padding = 10 - addrs.count
 
-        return addrs + [RakNet.Address](repeating: RakNet.Address(ip: .v4(0, 0, 0, 0), port: 0), count: padding)
+        return addrs + [RakNetAddress](repeating: RakNetAddress(ip: .v4(0, 0, 0, 0), port: 0), count: padding)
     }
     let requestTime: UInt64
     let time: UInt64

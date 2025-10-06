@@ -1,7 +1,7 @@
 import NIOCore
 
-struct UnconnectedPongPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .UNCONNECTED_PONG
+struct UnconnectedPongPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .UNCONNECTED_PONG
     var time: UInt64
     var guid: UInt64
     var magic: UInt128

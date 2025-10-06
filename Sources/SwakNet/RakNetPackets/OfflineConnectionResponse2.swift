@@ -1,10 +1,10 @@
 import NIO
 
-struct OfflineConnectionResponse2: RakNet.OfflinePacket {
-    var packetType: RakNet.PacketType = .OFFLINE_CONNECTION_RESPONSE_2
+struct OfflineConnectionResponse2: RakNetOfflinePacket {
+    var packetType: RakNetPacketType = .OFFLINE_CONNECTION_RESPONSE_2
     let magic: UInt128
-    let serverGUID: UInt64 = RakNet.Config.shared.GUID
-    let clientAddress: RakNet.Address
+    let serverGUID: UInt64 = RakNetConfig.shared.GUID
+    let clientAddress: RakNetAddress
     let mtuSize: UInt16 // assumption for now
     let requiresEncryption: UInt8 = 0
 

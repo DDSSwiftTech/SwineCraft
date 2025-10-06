@@ -1,7 +1,7 @@
 import NIO
 
-struct UnconnectedPingPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .UNCONNECTED_PING_0
+struct UnconnectedPingPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .UNCONNECTED_PING_0
     var time: UInt64
     var magic: UInt128 // 16 bytes
     var guid: UInt64

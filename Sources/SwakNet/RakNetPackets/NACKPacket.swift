@@ -1,7 +1,7 @@
 import NIOCore
 
-struct NACKPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .ACK
+struct NACKPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .ACK
     var recordCount: UInt16 {
         switch self.sequenceNumber {
             case .single(_):

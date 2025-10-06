@@ -84,10 +84,10 @@ public extension ByteBuffer {
         self.writeBytes(bytes)
     }
 
-    mutating func readAddress() -> RakNet.Address {
+    mutating func readAddress() -> RakNetAddress {
 
         if self.readBytes(length: 1)?.first == 4 {
-            return RakNet.Address(ip: .v4(
+            return RakNetAddress(ip: .v4(
                     ~self.readInteger()!,
                     ~self.readInteger()!,
                     ~self.readInteger()!,
@@ -98,17 +98,15 @@ public extension ByteBuffer {
             let addr_family: UInt16 = self.readInteger()!
             let port: UInt16 = self.readInteger()!
             let flow_info: UInt32 = self.readInteger()!
-            let addr = RakNet.AddressIP.v6(self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, addr_family: addr_family, flow_info: flow_info, scope_id: self.readInteger()!)
+            let addr = RakNetAddressIP.v6(self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, self.readInteger()!, addr_family: addr_family, flow_info: flow_info, scope_id: self.readInteger()!)
 
-            return RakNet.Address(ip: addr, port: port)
+            return RakNetAddress(ip: addr, port: port)
         }
     }
 }
 
-extension RakNet {
-    public class Utils {
-        public static func getLocalInterfaceAddresses() -> [RakNet.Address] {
-            return try! System.enumerateDevices().filter {($0.address?.protocol == .inet || $0.address?.protocol == .inet6) && $0.address != nil}.map {RakNet.Address(from: $0.address!)!}
-        }
+class RakNetUtils {
+    public static func getLocalInterfaceAddresses() -> [RakNetAddress] {
+        return try! System.enumerateDevices().filter {($0.address?.protocol == .inet || $0.address?.protocol == .inet6) && $0.address != nil}.map {RakNetAddress(from: $0.address!)!}
     }
 }

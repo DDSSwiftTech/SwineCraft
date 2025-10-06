@@ -24,7 +24,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let inboundEnvelope = self.unwrapInboundIn(data)
         var buffer = inboundEnvelope.data
-        let sourceAddress = RakNet.Address(from: inboundEnvelope.remoteAddress)!
+        let sourceAddress = RakNetAddress(from: inboundEnvelope.remoteAddress)!
 
         let old_buffer = buffer
 

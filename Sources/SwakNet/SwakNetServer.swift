@@ -10,7 +10,7 @@ final public class SwakNetServer {
         
         .channelInitializer { chan in
             chan.eventLoop.makeCompletedFuture {
-                let handler = RakNet.Handler(
+                let handler = RakNetHandler(
                     SERVER_ID_STRING: serverIDString
                 )
                 

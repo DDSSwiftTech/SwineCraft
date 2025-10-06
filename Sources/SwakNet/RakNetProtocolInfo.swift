@@ -1,5 +1,3 @@
-extension RakNet {
-    public class ProtocolInfo {
-        public static let VERSION = 844
-    }
+public class RakNetProtocolInfo {
+    public static let VERSION = 844
 }

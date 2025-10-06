@@ -11,8 +11,8 @@ enum DataFlags: UInt8 {
     case RELIABLE_ORDERED_ACK
 }
 
-struct DataPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .DATA_PACKET_0
+struct DataPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .DATA_PACKET_0
 
     let sequenceNumber: UInt32 // UInt24LE
     let messages: [Message]
@@ -38,7 +38,7 @@ struct DataPacket: RakNet.Packet {
 
     init(from buffer: inout ByteBuffer) throws {
         guard let sequenceNumber = buffer.readUInt24(endianness: .little) else {
-            throw RakNet.Error.PacketDecode(self.packetType)
+            throw RakNetError.PacketDecode(self.packetType)
         }
 
         self.sequenceNumber = sequenceNumber
@@ -48,7 +48,7 @@ struct DataPacket: RakNet.Packet {
         while buffer.readableBytes != 0 {
             guard let flags: UInt8 = buffer.readInteger(),
             let length: UInt16 = buffer.readInteger() else {
-                throw RakNet.Error.PacketDecode(self.packetType)
+                throw RakNetError.PacketDecode(self.packetType)
             }
 
             let flags_struct = DataFlags(rawValue: flags >> 5) ?? .UNRELIABLE
@@ -57,7 +57,7 @@ struct DataPacket: RakNet.Packet {
 
             if [DataFlags.RELIABLE, .RELIABLE_ORDERED, .RELIABLE_ACK, .RELIABLE_ORDERED_ACK, .RELIABLE_SEQUENCED].contains(flags_struct) {
                 guard let idx: UInt32 = buffer.readUInt24(endianness: .little) else {
-                    throw RakNet.Error.PacketDecode(self.packetType)
+                    throw RakNetError.PacketDecode(self.packetType)
                 }
 
                 reliableFrameIndex = idx
@@ -69,7 +69,7 @@ struct DataPacket: RakNet.Packet {
 
             if [DataFlags.UNRELIABLE_SEQUENCED, .RELIABLE_SEQUENCED].contains(flags_struct) {
                 guard let idx: UInt32 = buffer.readUInt24(endianness: .little) else {
-                    throw RakNet.Error.PacketDecode(self.packetType)
+                    throw RakNetError.PacketDecode(self.packetType)
                 }
 
                 sequencedFrameIndex = idx
@@ -82,7 +82,7 @@ struct DataPacket: RakNet.Packet {
 
             if [DataFlags.RELIABLE_ORDERED, .RELIABLE_ORDERED_ACK].contains(flags_struct) {
                 guard let idx: UInt32 = buffer.readUInt24(endianness: .little), let chan: UInt8 = buffer.readInteger() else {
-                    throw RakNet.Error.PacketDecode(self.packetType)
+                    throw RakNetError.PacketDecode(self.packetType)
                 }
 
                 orderedFrameIndex = idx
@@ -103,7 +103,7 @@ struct DataPacket: RakNet.Packet {
                 guard let _compoundSize: Int32 = buffer.readInteger(),
                 let _compoundID: Int16 = buffer.readInteger(),
                 let _index: Int32 = buffer.readInteger() else {
-                    throw RakNet.Error.PacketDecode(self.packetType)
+                    throw RakNetError.PacketDecode(self.packetType)
                 }
 
                 compoundSize = _compoundSize
@@ -137,7 +137,7 @@ struct DataPacket: RakNet.Packet {
         self.messages = messages
     }
 
-    mutating func setData(packetType: RakNet.PacketType) {
+    mutating func setData(packetType: RakNetPacketType) {
         self.packetType = packetType
     }
 

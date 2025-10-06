@@ -1,7 +1,7 @@
 import NIOCore
 
-struct ConnectedPingPacket: RakNet.Packet {
-    let packetType: RakNet.PacketType = .CONNECTED_PING
+struct ConnectedPingPacket: RakNetPacket {
+    let packetType: RakNetPacketType = .CONNECTED_PING
     let time: Int64
 
     init(from buffer: inout ByteBuffer) throws {

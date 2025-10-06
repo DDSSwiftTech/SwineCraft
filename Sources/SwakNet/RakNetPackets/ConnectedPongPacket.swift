@@ -1,7 +1,7 @@
 import NIOCore
 
-struct ConnectedPongPacket: RakNet.Packet {
-    let packetType: RakNet.PacketType = .CONNECTED_PONG
+struct ConnectedPongPacket: RakNetPacket {
+    let packetType: RakNetPacketType = .CONNECTED_PONG
     let clientTime: Int64
     let serverTime: Int64
 

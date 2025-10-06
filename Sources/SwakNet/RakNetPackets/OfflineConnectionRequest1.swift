@@ -1,7 +1,7 @@
 import NIO
 
-struct OfflineConnectionRequest1: RakNet.OfflinePacket {
-    let packetType: RakNet.PacketType = .OFFLINE_CONNECTION_REQUEST_1
+struct OfflineConnectionRequest1: RakNetOfflinePacket {
+    let packetType: RakNetPacketType = .OFFLINE_CONNECTION_REQUEST_1
     let magic: UInt128 // 16 bytes
     let protocolVersion: UInt8
     let padding: ByteBuffer

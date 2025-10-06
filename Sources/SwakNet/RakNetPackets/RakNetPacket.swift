@@ -1,21 +1,18 @@
 import NIO
 
+protocol RakNetPacket {
+    var packetType: RakNetPacketType { get }
 
-extension RakNet {
-    protocol Packet {
-        var packetType: RakNet.PacketType { get }
-
-        init(from buffer: inout ByteBuffer) throws
-        func encode() throws -> ByteBuffer
-    }
+    init(from buffer: inout ByteBuffer) throws
+    func encode() throws -> ByteBuffer
 }
 
-extension RakNet.Packet {
+extension RakNetPacket {
     init(from buffer: inout ByteBuffer) throws {
-        throw RakNet.Error.PacketDecode(.INCOMPATIBLE_PROTOCOL)
+        throw RakNetError.PacketDecode(.INCOMPATIBLE_PROTOCOL)
     }
 
     func encode() throws -> ByteBuffer {
-        throw RakNet.Error.PacketDecode(.INCOMPATIBLE_PROTOCOL)
+        throw RakNetError.PacketDecode(.INCOMPATIBLE_PROTOCOL)
     }
 }

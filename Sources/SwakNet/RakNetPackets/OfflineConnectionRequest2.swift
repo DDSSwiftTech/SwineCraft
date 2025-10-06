@@ -1,7 +1,7 @@
 import NIO
 
-struct OfflineConnectionRequest2: RakNet.OfflinePacket {
-    var packetType: RakNet.PacketType = .OFFLINE_CONNECTION_REQUEST_2
+struct OfflineConnectionRequest2: RakNetOfflinePacket {
+    var packetType: RakNetPacketType = .OFFLINE_CONNECTION_REQUEST_2
     let magic: UInt128
     let serverAddressType: UInt8 // assuming v4 for now
     let serverAddress: UInt32
@@ -18,7 +18,7 @@ struct OfflineConnectionRequest2: RakNet.OfflinePacket {
         let serverAddressPort: UInt16 = buffer.readInteger(),
         let mtuSize: UInt16 = buffer.readInteger(),
         let clientGUID: UInt16 = buffer.readInteger() else {
-            throw RakNet.Error.PacketDecode(packetType)
+            throw RakNetError.PacketDecode(packetType)
         }
 
         self.magic = magic

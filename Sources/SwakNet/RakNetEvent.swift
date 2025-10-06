@@ -1,3 +1,3 @@
 public enum RakNetEvent {
-    case DISCONNECTED(source: RakNet.Address, reason: String)
+    case DISCONNECTED(source: RakNetAddress, reason: String)
 }

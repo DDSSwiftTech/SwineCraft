@@ -1,7 +1,7 @@
 import NIOCore
 
-struct ConnectionRequestPacket: RakNet.Packet {
-    var packetType: RakNet.PacketType = .ONLINE_CONNECTION_REQUEST
+struct ConnectionRequestPacket: RakNetPacket {
+    var packetType: RakNetPacketType = .ONLINE_CONNECTION_REQUEST
 
     let GUID: UInt64
     let time: UInt64
@@ -11,7 +11,7 @@ struct ConnectionRequestPacket: RakNet.Packet {
         guard let GUID: UInt64 = buffer.readInteger(),
         let time: UInt64 = buffer.readInteger(),
         let useSecurity: UInt8 = buffer.readInteger() else {
-            throw RakNet.Error.PacketDecode(self.packetType)
+            throw RakNetError.PacketDecode(self.packetType)
         }
         
         self.GUID = GUID
