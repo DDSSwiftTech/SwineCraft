@@ -13,11 +13,9 @@ struct LoginPacket: MCPEPacket {
         self.protocolVersion = buffer.readInteger()!
         
         let jsonDataBuffLength = buffer.readVarInt().backingInt
-
         var jsonDataBuf = ByteBuffer(bytes: buffer.readBytes(length: Int(jsonDataBuffLength))!)
 
         let chainDataLength: UInt32 = jsonDataBuf.readInteger(endianness: .little)!
-
         let chainDataString = String(jsonDataBuf.readBytes(length: Int(chainDataLength))!.map {Character(Unicode.Scalar($0))})
 
         do {
