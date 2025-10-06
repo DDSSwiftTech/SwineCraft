@@ -9,13 +9,14 @@ final public class SwakNetServer {
         try await DatagramBootstrap(group: eventLoopGroup)
          .channelInitializer { chan in
             chan.eventLoop.makeCompletedFuture {
-                let handler = RakNetHandler(
+                let inboundHandler = RakNetHandler(
                     SERVER_ID_STRING: serverIDString
                 )
+                let outboundHandler = RakNetOutboundHandler()
                 
                 try chan.pipeline.syncOperations.addHandlers([
-                    handler,
-                    RakNetOutboundHandler(),
+                    inboundHandler,
+                    outboundHandler,
                     dataHandler
                 ])
             }
