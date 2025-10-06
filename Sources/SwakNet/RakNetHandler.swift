@@ -153,11 +153,11 @@ extension RakNet {
 
                     switch packet.sequenceNumber {
                         case .single(let seq):
-                                context.eventLoop.makeFutureWithTask({
-                                    await StateHandler.shared.getUnackedPacket(seqNum: seq, connectionID: sourceAddress)
-                                }).whenComplete { result in
-                                    context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
-                                }
+                            context.eventLoop.makeFutureWithTask({
+                                await StateHandler.shared.getUnackedPacket(seqNum: seq, connectionID: sourceAddress)
+                            }).whenComplete { result in
+                                context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
+                            }
                         case .range(let seqRange):
                             for seq in seqRange {
                                 context.eventLoop.makeFutureWithTask({
