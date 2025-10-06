@@ -6,9 +6,8 @@ final public class SwakNetServer {
     public init() {}
 
     public func listen(onIP ip: String, andPort port: UInt16, serverIDString: String, dataHandler: any ChannelInboundHandler & Sendable) async throws {
-        let bootstrap = DatagramBootstrap(group: eventLoopGroup)
-        
-        .channelInitializer { chan in
+        try await DatagramBootstrap(group: eventLoopGroup)
+         .channelInitializer { chan in
             chan.eventLoop.makeCompletedFuture {
                 let handler = RakNetHandler(
                     SERVER_ID_STRING: serverIDString
@@ -21,10 +20,8 @@ final public class SwakNetServer {
                 ])
             }
         }
-
-        let channel = try await bootstrap.bind(host: ip, port: Int(port)).get()
-
-        try await channel.closeFuture.get()
+        .bind(host: ip, port: Int(port)).get()
+        .closeFuture.get()
     }
 
     deinit {
