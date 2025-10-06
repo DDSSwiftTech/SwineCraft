@@ -13,6 +13,6 @@ This is a project I am from this day forward dedicating myself to. It will be co
 
 What works so far:
 
-* RakNet is functional enough for basic testing, but needs work
+* SwakNet (RakNet) is functional enough for basic testing, but needs work
 * NetworkSettings handled!
 * LoginPacket received and processed/decoded
