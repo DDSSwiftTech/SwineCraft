@@ -11,8 +11,8 @@ struct GamePacket {
 
     init(compressed: inout ByteBuffer) {
         var destination = ByteBuffer()
-        var capacity = destination.capacity
-        let srcCapacity: Int = compressed.capacity
+        var capacity: Int = 0
+        let srcCapacity: Int = compressed.readableBytes
 
         let _ = destination.withUnsafeMutableWritableBytes { destBuf in
             let _ = compressed.withUnsafeMutableWritableBytes { srcBuf in
