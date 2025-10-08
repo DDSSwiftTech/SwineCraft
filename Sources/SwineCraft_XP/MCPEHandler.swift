@@ -18,8 +18,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
         }
     }
 
-    func errorCaught(context: ChannelHandlerContext, error: any Error) {
-    }
+    func errorCaught(context: ChannelHandlerContext, error: any Error) {}
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let inboundEnvelope = self.unwrapInboundIn(data)
@@ -73,9 +72,29 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                     return
                 }
 
+                print("RECEIVED LOGIN PACKET")
+
                 self.stateHandler.setLoginPacket(packet, forSource: sourceAddress)
 
-                print("RECEIVED LOGIN PACKET")
+                let responsePacket = PlayStatusPacket(status: .LOGIN_SUCCESS)
+                
+                let data = try! responsePacket.encode()
+
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+            case .CLIENT_CACHE_STATUS:
+                guard let packet = try? ClientCacheStatusPacket(from: &buffer) else {
+                    return
+                }
+
+                self.stateHandler.setClientCacheSupported(packet.cachingStatus, forSource: sourceAddress)
+
+                print("RECEIVED CLIENT CACHE STATUS")
+
+                let responsePacket = packet // lets just send it back, we want to mimic server support
+
+                let data = try! responsePacket.encode()
+
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 

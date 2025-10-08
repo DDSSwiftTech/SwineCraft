@@ -14,6 +14,7 @@ class MCPEStateHandler {
         var clientThrottleThreshold: UInt8 = 0
         var clientThrottleScalar: Float = 0
         var loginPacket: LoginPacket? = nil
+        var clientCacheSupported: Bool = false
     }
 
     var activeGameStates: [RakNetAddress:MCPEState] = [:]
@@ -34,6 +35,14 @@ class MCPEStateHandler {
 
     func setLoginPacket(_ packet: LoginPacket, forSource source: RakNetAddress) {
         self.activeGameStates[source]?.loginPacket = packet
+    }
+
+    func setClientCacheSupported(_ supported: Bool, forSource source: RakNetAddress) {
+        self.activeGameStates[source]?.clientCacheSupported = supported
+    }
+
+    func getClientCacheSupported(forSource source: RakNetAddress) -> Bool {
+        return self.activeGameStates[source]?.clientCacheSupported ?? false
     }
 
     init() {}
