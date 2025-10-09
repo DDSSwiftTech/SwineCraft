@@ -18,16 +18,4 @@ struct OfflineConnectionResponse1: RakNetOfflinePacket {
         serverHasSecurity = (buffer.readInteger()! as UInt8) == 1
         self.mtuSize = buffer.readInteger()!
     }
-
-    func encode() throws -> ByteBuffer {
-        var buffer = ByteBuffer()
-
-        buffer.writeInteger(packetType.rawValue)
-        buffer.writeInteger(magic)
-        buffer.writeInteger(serverGUID)
-        buffer.writeInteger(serverHasSecurity ? UInt8(1) : UInt8(0))
-        buffer.writeInteger(mtuSize)
-
-        return buffer
-    }
 }

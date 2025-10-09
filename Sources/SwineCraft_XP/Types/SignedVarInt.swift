@@ -1,20 +1,20 @@
 import NIOCore
 
-struct VarInt: ExpressibleByIntegerLiteral, Codable {
-    typealias IntegerLiteralType = UInt32
+struct SignedVarInt: ExpressibleByIntegerLiteral {
+    typealias IntegerLiteralType = Int32
 
-    var backingInt: UInt32 = 0
+    var backingInt: Int32 = 0
 
     init(integerLiteral value: IntegerLiteralType) {
         self.backingInt = value
     }
 
     init(buffer: inout ByteBuffer) {
-        var result: UInt32 = 0
-        var idx: UInt32 = 0
+        var result: Int32 = 0
+        var idx: Int32 = 0
 
         while let currentByte: UInt8 = buffer.readInteger() {
-            result |= UInt32(currentByte & 0b01111111) << (7 * idx)
+            result |= Int32(currentByte & 0b01111111) << (7 * idx)
 
             if (currentByte >> 7) == 0 || idx == 4 {
                 break
@@ -26,6 +26,9 @@ struct VarInt: ExpressibleByIntegerLiteral, Codable {
         self.backingInt = result
     }
 
+    /// 
+    /// Encode SignedVarInt into ByteBuffer
+    /// - Returns: ByteBuffer
     func encode() -> ByteBuffer {
         guard self.backingInt != 0 else {
             return ByteBuffer(integer: UInt8(0))
@@ -56,7 +59,7 @@ struct VarInt: ExpressibleByIntegerLiteral, Codable {
 }
 
 extension ByteBuffer {
-    mutating func readVarInt() -> VarInt {
-        return VarInt(buffer: &self)
+    mutating func readSignedVarInt() -> SignedVarInt {
+        return SignedVarInt(buffer: &self)
     }
 }

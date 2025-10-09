@@ -14,14 +14,4 @@ struct ConnectedPongPacket: RakNetPacket {
         self.clientTime = buffer.readInteger() ?? 0
         self.serverTime = buffer.readInteger() ?? 0
     }
-
-    func encode() throws -> ByteBuffer {
-        var buffer = ByteBuffer()
-
-        buffer.writeInteger(self.packetType.rawValue)
-        buffer.writeInteger(self.clientTime)
-        buffer.writeInteger(self.serverTime)
-
-        return buffer
-    }
 }

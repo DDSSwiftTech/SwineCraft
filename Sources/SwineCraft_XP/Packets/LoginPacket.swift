@@ -24,6 +24,7 @@ struct LoginPacket: MCPEPacket {
             print(e)
             throw e
         }
+
         let skinDataLength: UInt32 = jsonDataBuf.readInteger(endianness: .little)!
 
         let skinData = String(jsonDataBuf.readBytes(length: Int(skinDataLength))!.map {Character(Unicode.Scalar($0))})
@@ -44,9 +45,40 @@ struct LoginPacket: MCPEPacket {
 
 extension LoginPacket {
     struct ChainData: Codable {
+        enum ChainDataKey: CodingKey {
+            case Token
+            case Certificate
+            case AuthenticationType
+        }
+
+        struct TokenStruct: Codable {
+            let sub: String
+            let ipt: String
+            let iat: Int
+            let mid: String
+            let tid: String
+            let pfcd: Int
+            let cpk: String
+            let xid: String
+            let xname: String
+            let exp: Int
+            let iss: String
+            let aud: String
+        }
         let AuthenticationType: Int
         var Certificate: String
-        let Token: String
+        let Token: TokenStruct
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: ChainDataKey.self)
+
+            self.AuthenticationType = try container.decode(Int.self, forKey: .AuthenticationType)
+            self.Certificate = try container.decode(String.self, forKey: .Certificate)
+            self.Token = try JSONDecoder().decode(
+                TokenStruct.self,
+                from: Data(MCPEBase64Encoded: String(try container.decode(String.self, forKey: .Token).split(separator: ".")[1]), options: .ignoreUnknownCharacters)!
+            )
+        }
     }
 
     struct SkinSignature: Codable {
@@ -96,7 +128,7 @@ extension LoginPacket {
         let CompatibleWithClientSideChunkGen: Bool
         let CurrentInputMode: Int
         let DefaultInputMode: Int
-        let DeviceId: UUID
+        let DeviceId: String
         let DeviceModel: String
         let DeviceOS: Int
         let GameVersion: String

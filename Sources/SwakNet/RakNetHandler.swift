@@ -48,7 +48,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                     serverIDString: self.SERVER_ID_STRING
                 )
 
-                context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
             case .OFFLINE_CONNECTION_REQUEST_1:
                 guard let packet = try? OfflineConnectionRequest1(from: buffer) else {
                     return
@@ -59,7 +59,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                     await RakNetStateHandler.shared.setConnectionMTU(connectionID: RakNetAddress(from: inboundEnvelope.remoteAddress)!, mtu: packet.mtu)
                 }.whenComplete { _ in
                     let responsePacket = OfflineConnectionResponse1(magic: packet.magic, serverHasSecurity: false, mtu: packet.mtu)
-                    context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
+                    context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
                 }                    
             case .OFFLINE_CONNECTION_REQUEST_2:
                 guard let packet = try? OfflineConnectionRequest2(from: buffer) else {
@@ -75,7 +75,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                         mtuSize: try! result.get()
                     )
 
-                    context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
+                    context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
                 }
             case .DATA_PACKET_0, .DATA_PACKET_1, .DATA_PACKET_2, .DATA_PACKET_3, .DATA_PACKET_4, .DATA_PACKET_5, .DATA_PACKET_6, .DATA_PACKET_7, .DATA_PACKET_8, .DATA_PACKET_9, .DATA_PACKET_A, .DATA_PACKET_B, .DATA_PACKET_C, .DATA_PACKET_D, .DATA_PACKET_E, .DATA_PACKET_F:
                 guard let packet = try? DataPacket(from: &buffer) else {
@@ -86,7 +86,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                     sequenceNumber: .single(packet.sequenceNumber)
                 )
 
-                context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
 
                 context.eventLoop.makeFutureWithTask {
                     await RakNetStateHandler.shared.decapsulateDataPacket(packet: packet, connectionID: sourceAddress)
@@ -122,7 +122,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                         await RakNetStateHandler.shared.encapsulate(packets: [packet], connectionID: sourceAddress)
                     }
                 }.whenComplete { result in
-                    context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get().encode())), promise: nil)
+                    context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get().encode())), promise: nil)
                 }
             case .ACK:
                 guard let packet = try? ACKPacket(from: &buffer) else {
@@ -155,14 +155,14 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                         context.eventLoop.makeFutureWithTask({
                             await RakNetStateHandler.shared.getUnackedPacket(seqNum: seq, connectionID: sourceAddress)
                         }).whenComplete { result in
-                            context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
+                            context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
                         }
                     case .range(let seqRange):
                         for seq in seqRange {
                             context.eventLoop.makeFutureWithTask({
                                 await RakNetStateHandler.shared.getUnackedPacket(seqNum: seq, connectionID: sourceAddress)
                             }).whenComplete { result in
-                                    context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
+                                    context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
                             }
                         }
                     }
@@ -194,7 +194,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                 context.eventLoop.makeFutureWithTask {
                     try await RakNetStateHandler.shared.encapsulate(packets: [responsePacket], connectionID: sourceAddress).encode()
                 }.whenComplete { result in
-                    context.write(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get())), promise: nil)
+                    context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get())), promise: nil)
                 }
             case .GAME_PACKET:
                 print("RECEIVED GAME PACKET")

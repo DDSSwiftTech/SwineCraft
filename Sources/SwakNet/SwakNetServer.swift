@@ -1,4 +1,5 @@
 import NIO
+import Foundation
 
 final public class SwakNetServer {
     private let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 20)
@@ -7,7 +8,8 @@ final public class SwakNetServer {
 
     public func listen(onIP ip: String, andPort port: UInt16, serverIDString: String, dataHandler: any ChannelInboundHandler & Sendable) async throws {
         try await DatagramBootstrap(group: eventLoopGroup)
-         .channelInitializer { chan in
+        .channelOption(ChannelOptions.Types.SocketOption(level: IPPROTO_IP, name: IP_MTU_DISCOVER), value: 1)
+        .channelInitializer { chan in
             chan.eventLoop.makeCompletedFuture {
                 let inboundHandler = RakNetHandler(
                     SERVER_ID_STRING: serverIDString

@@ -66,7 +66,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + SignedVarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case .LOGIN:
                 guard let packet = try? LoginPacket(from: &buffer) else {
                     return
@@ -80,7 +80,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + SignedVarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case .CLIENT_CACHE_STATUS:
                 guard let packet = try? ClientCacheStatusPacket(from: &buffer) else {
                     return
@@ -94,7 +94,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + SignedVarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 
