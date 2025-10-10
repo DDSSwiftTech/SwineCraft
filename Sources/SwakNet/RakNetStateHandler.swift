@@ -137,9 +137,8 @@ final class RakNetStateHandler: Sendable {
         let seqNum = self.activeConnectionState[connectionID]!.clientDataPacketSequenceNumber
 
         self.activeConnectionState[connectionID]!.clientDataPacketSequenceNumber += 1
-        var messages: [DataPacket.Message] = []
 
-        for buffer in buffers {
+        let messages = buffers.map { buffer in
             let dataMessage = DataPacket.Message(
                 flags: .RELIABLE_ORDERED,
                 isFragment: false,
@@ -154,9 +153,9 @@ final class RakNetStateHandler: Sendable {
                 body: buffer
             )
 
-            messages.append(dataMessage)
-
             self.activeConnectionState[connectionID]?.reliableFrameIDX += 1
+
+            return dataMessage
         }
 
         var returnData = DataPacket(sequenceNumber: seqNum, messages: messages)
