@@ -1,6 +1,6 @@
 import NIOCore
 
-struct SignedVarInt: ExpressibleByIntegerLiteral {
+struct VarInt: ExpressibleByIntegerLiteral {
     typealias IntegerLiteralType = Int32
 
     var backingInt: Int32 = 0
@@ -59,7 +59,7 @@ struct SignedVarInt: ExpressibleByIntegerLiteral {
 }
 
 extension ByteBuffer {
-    mutating func readSignedVarInt() -> SignedVarInt {
-        return SignedVarInt(buffer: &self)
+    mutating func readVarInt() -> VarInt {
+        return VarInt(buffer: &self)
     }
 }

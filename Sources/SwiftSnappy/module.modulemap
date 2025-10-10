@@ -1,0 +1,4 @@
+  module SwiftSnappy [system] {
+      header "include.h"
+      export *
+  }

@@ -17,7 +17,7 @@ struct DataPacket: RakNetPacket {
     let sequenceNumber: UInt32 // UInt24LE
     let messages: [Message]
 
-    struct Message {
+    struct Message { // message header: 26 bytes
         let flags: DataFlags
         let isFragment: Bool
         let length: UInt16

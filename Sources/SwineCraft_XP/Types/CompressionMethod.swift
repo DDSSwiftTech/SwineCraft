@@ -1,5 +1,5 @@
-enum CompressionMethod: UInt16 {
+enum CompressionMethod: Int16 {
     case ZLib
     case Snappy
-    case None = 0xFFFF
+    case None = -1
 }

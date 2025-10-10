@@ -20,6 +20,10 @@ let package = Package(
             name: "SwiftZlib",
             pkgConfig: "zlib"
         ),
+        .systemLibrary(
+            name: "SwiftSnappy",
+            pkgConfig: "snappy"
+        ),
         .target(name: "SwakNet",
         dependencies: [
             .product(name: "NIO", package: "swift-nio")
@@ -27,7 +31,8 @@ let package = Package(
         .executableTarget(
             name: "SwineCraft_XP", dependencies: [
                 .target(name: "SwakNet"),
-                .byName(name: "SwiftZlib"),
+                .target(name: "SwiftZlib"),
+                .target(name: "SwiftSnappy"),
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "NIOExtras", package: "swift-nio-extras"),

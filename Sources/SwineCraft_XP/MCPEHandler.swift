@@ -1,11 +1,19 @@
 import NIO
 import SwakNet
+import SwiftSnappy
+import Foundation
 
 class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
     typealias InboundIn = AddressedEnvelope<ByteBuffer>
     typealias OutboundOut = AddressedEnvelope<ByteBuffer>
 
     let stateHandler = MCPEStateHandler()
+    /// This buffer should be a performance and resource usage win
+    /// 
+    /// This will allow us to get progressively larger and larger buffers, without growing insanely large, and optimizing RAM usage
+    /// 
+    /// This is used for decompression
+    let decompressionAdaptiveBufferAllocator = AdaptiveRecvByteBufferAllocator(minimum: 256, initial: 256, maximum: 8 * 1024 * 1024)
 
     func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
         let event = event as! RakNetEvent
@@ -30,22 +38,26 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
         if !self.stateHandler.stateActive(source: sourceAddress) { // TODO: This will need a revisit
             let _ = buffer.readBytes(length: 1) // putting the length byte here, don't need it
         } else {
-            guard let compressionMethod = CompressionMethod(rawValue: 0xFF00 | dump(UInt16(buffer.readInteger()! as UInt8))) else {
+            guard let compressionMethod = CompressionMethod(rawValue: Int16(buffer.readInteger()! as Int8)) else {
                 print("bad compression method")
 
                 return
             }
 
             switch compressionMethod {
+                case .Snappy:
+                    break
+                case .ZLib:
+                    buffer = InflateDecompressor(bufSize: 8 * 1024 * 1024).decompress(&buffer)
+
+                    print("ZLIB COMPRESSION DETECTED!")
                 case .None:
-                    let bufferLength: VarInt = buffer.readVarInt()
-
-                    print(bufferLength)
-
-                    buffer = ByteBuffer(bytes: buffer.readBytes(length: Int(bufferLength.backingInt))!)
-                default:
-                    return // We will have to handle ZLIB and Snappy compression, but lets just not for now and come back to this later...
+                    break
             }
+
+            let bufferLength = buffer.readVarInt()
+
+            buffer = ByteBuffer(bytes: buffer.readBytes(length: Int(bufferLength.backingInt))!)
         }
 
         switch MCPEPacketType(rawValue: buffer.readInteger()!) {
@@ -57,8 +69,8 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 self.stateHandler.initializeState(source: sourceAddress, version: packet.protocolVersion)
 
                 let responsePacket = NetworkSettingsPacket(
-                    compressionThreshold: 0,
-                    compressionMethod: .None,
+                    compressionThreshold: 256,
+                    compressionMethod: .ZLib,
                     clientThrottleEnabled: false,
                     clientThrottleThreshold: 0,
                     clientThrottleScalar: 0
@@ -66,7 +78,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + SignedVarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case .LOGIN:
                 guard let packet = try? LoginPacket(from: &buffer) else {
                     return
@@ -80,7 +92,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + SignedVarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case .CLIENT_CACHE_STATUS:
                 guard let packet = try? ClientCacheStatusPacket(from: &buffer) else {
                     return
@@ -94,7 +106,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let data = try! responsePacket.encode()
 
-                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + SignedVarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.write(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 

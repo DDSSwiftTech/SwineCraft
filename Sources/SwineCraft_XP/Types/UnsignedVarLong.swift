@@ -1,6 +1,6 @@
 import NIOCore
 
-struct VarLong: ExpressibleByIntegerLiteral {
+struct UnsignedVarLong: ExpressibleByIntegerLiteral {
     typealias IntegerLiteralType = UInt64
 
     var backingInt: UInt64 = 0
@@ -68,7 +68,7 @@ struct VarLong: ExpressibleByIntegerLiteral {
 }
 
 extension ByteBuffer {
-    mutating func readVarLong() -> VarLong {
-        return VarLong(buffer: &self)
+    mutating func readUnsignedVarLong() -> UnsignedVarLong {
+        return UnsignedVarLong(buffer: &self)
     }
 }
