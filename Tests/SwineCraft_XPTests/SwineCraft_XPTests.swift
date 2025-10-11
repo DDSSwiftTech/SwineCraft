@@ -13,7 +13,19 @@ import Testing
 
     var data = ByteBuffer(bytes: [UInt8](repeating: 0, count: 5000) + [UInt8](repeating: 1, count: 5000) + [UInt8](repeating: 2, count: 5000))
 
-    print("TESTING WITH DATA: \(data)")
+    let originalData = data
+
+    var compressedData = compressor.compress(&data)
+    let decompressedData = decompressor.decompress(&compressedData)
+
+    #expect(originalData == decompressedData, "Original data == compressed data")
+}
+
+@Test func snappyCompressDecompress() async throws {
+    let compressor = SnappyCompressor()
+    let decompressor = SnappyDecompressor()
+
+    var data = ByteBuffer(bytes: [UInt8](repeating: 0, count: 5000) + [UInt8](repeating: 1, count: 5000) + [UInt8](repeating: 2, count: 5000))
 
     let originalData = data
 

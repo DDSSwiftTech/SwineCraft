@@ -1,38 +1,34 @@
-// import SwiftSnappy
-// import NIOCore
+import SwiftSnappy
+import NIOCore
 
-// class SnappyDecompressor {
-//     var adaptiveAllocator: AdaptiveRecvByteBufferAllocator
+class SnappyDecompressor: Decompressor {
+    var method: CompressionMethod = .Snappy
+    var adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: 256, initial: 256, maximum: 8 *  1024 * 1024)
 
-//     init(bufSize: Int) {
-//         self.adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: bufSize, initial: bufSize, maximum: 8 *  1024 * 1024)
-//     }
+    required init() {}
 
-//     func decompress(_ inbuf: inout ByteBuffer) -> ByteBuffer {
-//         strm.avail_in = uInt(inbuf.readableBytes)
+    func decompress(_ inbuf: inout ByteBuffer) -> ByteBuffer {
+        var resultBuf = ByteBuffer()
 
-//         return inbuf.withUnsafeMutableReadableBytes { inbufptr in
-//             var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize() ?? 256)
-//             var retval = ZLIBError.OK
+        inbuf.readWithUnsafeReadableBytes { inbufptr in
+            var uncompressedLength = 0
 
-//             strm.next_in = inbufptr.baseAddress?.assumingMemoryBound(to: Bytef.self)
+            snappy_uncompressed_length(inbufptr.baseAddress, inbufptr.count, &uncompressedLength)
 
-//             repeat {
+            let outbuf = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: uncompressedLength)
 
-//                 let tempBuf = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 65536); defer {tempBuf.deallocate()}
+            defer {outbuf.deallocate()}
 
-//                 tempBuf.initialize(repeating: 0)
+            var outputLength = uncompressedLength
 
-//                 strm.avail_out = uInt(tempBuf.count)
+            let _ = snappy_uncompress(inbufptr.baseAddress, inbufptr.count, outbuf.baseAddress, &outputLength)
 
-//                 strm.next_out = tempBuf.baseAddress
+            resultBuf.writeBytes(outbuf)
 
-//                 retval = ZLIBError(rawValue: inflate(&self.strm, Z_SYNC_FLUSH))!
+            return outputLength
+        }
+        
+        return resultBuf
 
-//                 outbuf.writeBytes(tempBuf)
-//             } while retval == .OK
-
-//             return outbuf
-//         }
-//     }
-// }
+    }
+}
