@@ -16,7 +16,7 @@ class DeflateCompressor {
         strm.avail_in = uInt(inbuf.readableBytes)
 
         return inbuf.withUnsafeMutableReadableBytes { inbufptr in
-            var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize() ?? 256)
+            var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize() ?? 8 *  1024 * 1024)
             var retval = ZLIBError.OK
 
             strm.next_in = inbufptr.baseAddress?.assumingMemoryBound(to: Bytef.self)
