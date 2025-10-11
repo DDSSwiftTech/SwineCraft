@@ -1,6 +1,6 @@
 import NIOCore
 
 protocol Decompressor {
-    init(bufSize: Int)
+    init()
     func decompress(_ inbuf: inout ByteBuffer) -> ByteBuffer
 }

@@ -1,14 +1,12 @@
 import SwiftZlib
 import NIOCore
 
-class DeflateCompressor {
-    var adaptiveAllocator: AdaptiveRecvByteBufferAllocator
+class DeflateCompressor: Compressor {
+    var adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: 256, initial: 256, maximum: 8 *  1024 * 1024)
     
     var strm = z_stream()
 
-    init(bufSize: Int) {
-        self.adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: bufSize, initial: bufSize, maximum: 8 *  1024 * 1024)
-
+    required init() {
         deflateInit2_(&self.strm, 1, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, Z_DEFAULT_STRATEGY, zlibVersion(), Int32(MemoryLayout.size(ofValue: strm)))
     }
 
@@ -25,10 +23,9 @@ class DeflateCompressor {
                 let tempBuf = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 65536); defer {tempBuf.deallocate()}
 
                 strm.avail_out = uInt(tempBuf.count)
-
                 strm.next_out = tempBuf.baseAddress
 
-                retval = ZLIBError(rawValue: deflate(&self.strm, Z_SYNC_FLUSH))!
+                retval = ZLIBError(rawValue: deflate(&self.strm, Z_SYNC_FLUSH)) ?? .VERSION
 
                 outbuf.writeBytes(tempBuf)
             } while retval == .OK

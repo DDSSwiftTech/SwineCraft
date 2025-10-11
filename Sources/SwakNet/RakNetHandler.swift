@@ -155,14 +155,22 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                         context.eventLoop.makeFutureWithTask({
                             await RakNetStateHandler.shared.getUnackedPacket(seqNum: seq, connectionID: sourceAddress)
                         }).whenComplete { result in
-                            context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
+                            guard let result = try? result.get(), let buf = try? result.encode() else {
+                                return
+                            }
+
+                            context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: buf)), promise: nil)
                         }
                     case .range(let seqRange):
                         for seq in seqRange {
                             context.eventLoop.makeFutureWithTask({
                                 await RakNetStateHandler.shared.getUnackedPacket(seqNum: seq, connectionID: sourceAddress)
                             }).whenComplete { result in
-                                    context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get()!.encode())), promise: nil)
+                                guard let result = try? result.get(), let buf = try? result.encode() else {
+                                    return
+                                }
+                                
+                                context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: buf)), promise: nil)
                             }
                         }
                     }

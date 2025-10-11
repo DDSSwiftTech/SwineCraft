@@ -1,6 +1,6 @@
 import NIOCore
 
 protocol Compressor {
-    init(bufSize: Int)
+    init()
     func compress(_ inbuf: inout ByteBuffer) -> ByteBuffer
 }
