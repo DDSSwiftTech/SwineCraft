@@ -1,8 +1,9 @@
 import SwiftZlib
 import NIOCore
 
-class InflateDecompressor: Decompressor {
-    var adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: 256, initial: 256, maximum: 8 *  1024 * 1024)
+final class InflateDecompressor: Decompressor {
+    var method: CompressionMethod = .DEFLATE
+    var adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: 256, initial: 256, maximum: 8 * 1024 * 1024)
     
     var strm = z_stream()
 
@@ -11,11 +12,15 @@ class InflateDecompressor: Decompressor {
     }
 
     func decompress(_ inbuf: inout ByteBuffer) -> ByteBuffer {
+        defer {inflateReset2(&self.strm, -MAX_WBITS)}
+
         strm.avail_in = uInt(inbuf.readableBytes)
 
         return inbuf.withUnsafeMutableReadableBytes { inbufptr in
-            var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize() ?? 8 *  1024 * 1024)
+            var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize()!)
             var retval = ZLIBError.OK
+
+            print("ADAPTIVE_OUTBUF_CAPACITY: \(outbuf.capacity)")
 
             strm.next_in = inbufptr.baseAddress?.assumingMemoryBound(to: Bytef.self)
 
@@ -29,6 +34,10 @@ class InflateDecompressor: Decompressor {
 
                 outbuf.writeBytes(tempBuf)
             } while retval == .OK
+
+            let bytesRecorded = self.adaptiveAllocator.record(actualReadBytes: outbuf.capacity)
+
+            print("ADAPTIVE_BYTES_UPDATED \(bytesRecorded)")
 
             return outbuf
         }

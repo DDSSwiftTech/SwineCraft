@@ -8,12 +8,14 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
     typealias OutboundOut = AddressedEnvelope<ByteBuffer>
 
     let stateHandler = MCPEStateHandler()
-    /// This buffer should be a performance and resource usage win
-    /// 
-    /// This will allow us to get progressively larger and larger buffers, without growing insanely large, and optimizing RAM usage
-    /// 
-    /// This is used for decompression
-    var compressionManager: CompressionManager? = nil
+    let registeredCompressors: [CompressionMethod: Compressor] = [
+        .DEFLATE: DeflateCompressor(),
+        .None: NoneCompressor()
+    ]
+    let registeredDecompressors: [CompressionMethod: Decompressor] = [
+        .DEFLATE: InflateDecompressor(),
+        .None: NoneDecompressor()
+    ]
 
     func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
         let event = event as! RakNetEvent
@@ -26,7 +28,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
         }
     }
 
-    func errorCaught(context: ChannelHandlerContext, error: any Error) {}
+    func errorCaught(context: ChannelHandlerContext, error: any Error) {print(error)}
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let inboundEnvelope = self.unwrapInboundIn(data)
@@ -35,30 +37,25 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
         let old_buffer = buffer
 
-        if let compressionManager = self.compressionManager { // compression has been negotiated
+        if self.stateHandler.getCompressionMethod(forSource: sourceAddress) != nil { // compression has been negotiated
             guard let compressionMethod = CompressionMethod(rawValue: Int16(buffer.readInteger()! as Int8)) else {
                 print("bad compression method")
 
                 return
             }
 
-            switch compressionMethod {
-                case .Snappy:
-                    break
-                case .ZLib:
-                    buffer = compressionManager.decompress(&buffer)
-
-                    print("ZLIB COMPRESSION DETECTED!")
-                case .None:
-                    break
-            }
+            buffer = self.registeredDecompressors[compressionMethod]!.decompress(&buffer)
         }
 
         let bufferLength = buffer.readVarInt()
 
         buffer = ByteBuffer(bytes: buffer.readBytes(length: Int(bufferLength.backingInt))!)
 
-        switch MCPEPacketType(rawValue: buffer.readInteger()!) {
+        guard let rawPacketType: UInt8 = buffer.readInteger() else {
+            return
+        }
+
+        switch MCPEPacketType(rawValue: rawPacketType) {
             case .REQUEST_NETWORK_SETTINGS:
                 guard let packet = try? RequestNetworkSettingsPacket(from: &buffer) else {
                     return
@@ -68,13 +65,13 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let responsePacket = NetworkSettingsPacket(
                     compressionThreshold: 256,
-                    compressionMethod: .ZLib,
+                    compressionMethod: .DEFLATE,
                     clientThrottleEnabled: false,
                     clientThrottleThreshold: 0,
                     clientThrottleScalar: 0
                 )
 
-                self.compressionManager = CompressionManager(compressor: DeflateCompressor(), decompressor: InflateDecompressor())
+                self.stateHandler.setCompressionMethod(.DEFLATE, forSource: sourceAddress)
 
                 let data = try! responsePacket.encode()
 
@@ -90,9 +87,9 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 let responsePacket = PlayStatusPacket(status: .LOGIN_SUCCESS)
                 
-                let data = try! responsePacket.encode()
+                let data = self.compress(packet: responsePacket, sourceAddress: sourceAddress)
 
-                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
             case .CLIENT_CACHE_STATUS:
                 guard let packet = try? ClientCacheStatusPacket(from: &buffer) else {
                     return
@@ -102,15 +99,36 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 print("RECEIVED CLIENT CACHE STATUS")
 
-                let responsePacket = packet // lets just send it back, we want to mimic server support
+                let data = self.compress(packet: packet, sourceAddress: sourceAddress)
 
-                let data = try! responsePacket.encode()
-
-                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe, 0xFF] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 
                 print("UNIMEPLEMENTED PACKET TYPE \(old_buffer)")
         }
+    }
+
+    func compress(packet: MCPEPacket, sourceAddress: RakNetAddress) -> ByteBuffer {
+        var basebuf = ByteBuffer([0xFE])
+        var packetBuf = try! packet.encode()
+        var packetbufWithLength = VarInt(integerLiteral: Int32(packetBuf.readableBytes)).encode()
+        packetbufWithLength.writeBuffer(&packetBuf)
+
+        if var method = self.stateHandler.getCompressionMethod(forSource: sourceAddress) {
+            let compressor = self.registeredCompressors[method]!
+
+            if packetbufWithLength.readableBytes < compressor.compressionThreshold {
+                method = .None // never compress if below threshold
+            }
+
+            basebuf.writeBytes([UInt8(method.rawValue & 0xFF)])
+
+            var compressedBuf = self.registeredCompressors[method]!.compress(&packetbufWithLength)
+
+            basebuf.writeBuffer(&compressedBuf)
+        }
+
+        return basebuf
     }
 }

@@ -1,7 +1,9 @@
 import SwiftZlib
 import NIOCore
 
-class DeflateCompressor: Compressor {
+final class DeflateCompressor: Compressor {
+    let method: CompressionMethod = .DEFLATE
+    let compressionThreshold: Int = 256
     var adaptiveAllocator = AdaptiveRecvByteBufferAllocator(minimum: 256, initial: 256, maximum: 8 *  1024 * 1024)
     
     var strm = z_stream()
@@ -11,6 +13,8 @@ class DeflateCompressor: Compressor {
     }
 
     func compress(_ inbuf: inout ByteBuffer) -> ByteBuffer {
+        defer {deflateReset(&self.strm)}
+
         strm.avail_in = uInt(inbuf.readableBytes)
 
         return inbuf.withUnsafeMutableReadableBytes { inbufptr in
@@ -30,7 +34,11 @@ class DeflateCompressor: Compressor {
                 outbuf.writeBytes(tempBuf)
             } while retval == .OK
 
-            return outbuf
+            let bytesRecorded = self.adaptiveAllocator.record(actualReadBytes: outbuf.capacity)
+
+            print("ADAPTIVE_BYTES_UPDATED \(bytesRecorded)")
+
+            return dump(ByteBuffer(bytes: outbuf.getBytes(at: 0, length: Int(strm.total_out))!))
         }
     }
 }

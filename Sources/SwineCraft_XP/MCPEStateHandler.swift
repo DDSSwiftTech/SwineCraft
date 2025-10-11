@@ -8,8 +8,7 @@ class MCPEStateHandler {
         var source: RakNetAddress
         var protocolVersion: ProtocolVersion
         var activePlayer: Player? = nil
-        var compressionThreshold: Int16 = 0
-        var compressionMethod: CompressionMethod = .Snappy
+        var compressionMethod: CompressionMethod? = nil
         var clientThrottleEnabled: Bool = false
         var clientThrottleThreshold: UInt8 = 0
         var clientThrottleScalar: Float = 0
@@ -24,9 +23,7 @@ class MCPEStateHandler {
     }
 
     func discardState(source: RakNetAddress) {
-        if self.activeGameStates.keys.contains(source) {
-            self.activeGameStates.removeValue(forKey: source)
-        }
+        self.activeGameStates[source] = nil
     }
 
     func stateActive(source: RakNetAddress) -> Bool {
@@ -43,6 +40,14 @@ class MCPEStateHandler {
 
     func getClientCacheSupported(forSource source: RakNetAddress) -> Bool {
         return self.activeGameStates[source]?.clientCacheSupported ?? false
+    }
+
+    func setCompressionMethod(_ method: CompressionMethod, forSource source: RakNetAddress) {
+        self.activeGameStates[source]?.compressionMethod = method
+    }
+
+    func getCompressionMethod(forSource source: RakNetAddress) -> CompressionMethod? {
+        return self.activeGameStates[source]?.compressionMethod
     }
 
     init() {}
