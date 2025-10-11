@@ -38,7 +38,8 @@ let package = Package(
                 .product(name: "NIOExtras", package: "swift-nio-extras"),
             ]),
         .testTarget(
-            name: "SwineCraft_XPTests"
+            name: "SwineCraft_XPTests",
+            dependencies: [.target(name: "SwineCraft_XP")]
         ),
     ]
 )

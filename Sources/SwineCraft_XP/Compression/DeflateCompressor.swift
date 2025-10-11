@@ -18,7 +18,7 @@ final class DeflateCompressor: Compressor {
         strm.avail_in = uInt(inbuf.readableBytes)
 
         return inbuf.withUnsafeMutableReadableBytes { inbufptr in
-            var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize() ?? 8 *  1024 * 1024)
+            var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize()!)
             var retval = ZLIBError.OK
 
             strm.next_in = inbufptr.baseAddress?.assumingMemoryBound(to: Bytef.self)
@@ -34,9 +34,7 @@ final class DeflateCompressor: Compressor {
                 outbuf.writeBytes(tempBuf)
             } while retval == .OK
 
-            let bytesRecorded = self.adaptiveAllocator.record(actualReadBytes: outbuf.capacity)
-
-            print("ADAPTIVE_BYTES_UPDATED \(bytesRecorded)")
+            let _ = self.adaptiveAllocator.record(actualReadBytes: outbuf.capacity)
 
             return ByteBuffer(bytes: outbuf.getBytes(at: 0, length: Int(strm.total_out))!)
         }

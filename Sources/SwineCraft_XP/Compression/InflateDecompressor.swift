@@ -20,8 +20,6 @@ final class InflateDecompressor: Decompressor {
             var outbuf = ByteBufferAllocator().buffer(capacity: self.adaptiveAllocator.nextBufferSize()!)
             var retval = ZLIBError.OK
 
-            print("ADAPTIVE_OUTBUF_CAPACITY: \(outbuf.capacity)")
-
             strm.next_in = inbufptr.baseAddress?.assumingMemoryBound(to: Bytef.self)
 
             repeat {
@@ -35,11 +33,9 @@ final class InflateDecompressor: Decompressor {
                 outbuf.writeBytes(tempBuf)
             } while retval == .OK
 
-            let bytesRecorded = self.adaptiveAllocator.record(actualReadBytes: outbuf.capacity)
+            let _ = self.adaptiveAllocator.record(actualReadBytes: outbuf.capacity)
 
-            print("ADAPTIVE_BYTES_UPDATED \(bytesRecorded)")
-
-            return outbuf
+            return ByteBuffer(bytes: outbuf.getBytes(at: 0, length: Int(strm.total_out))!)
         }
     }
 }
