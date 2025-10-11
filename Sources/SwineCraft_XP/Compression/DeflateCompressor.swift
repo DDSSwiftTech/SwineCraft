@@ -38,7 +38,7 @@ final class DeflateCompressor: Compressor {
 
             print("ADAPTIVE_BYTES_UPDATED \(bytesRecorded)")
 
-            return dump(ByteBuffer(bytes: outbuf.getBytes(at: 0, length: Int(strm.total_out))!))
+            return ByteBuffer(bytes: outbuf.getBytes(at: 0, length: Int(strm.total_out))!)
         }
     }
 }

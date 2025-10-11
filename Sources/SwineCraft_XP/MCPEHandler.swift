@@ -122,9 +122,11 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 method = .None // never compress if below threshold
             }
 
+            print("COMPRESSING WITH \(method)")
+
             basebuf.writeBytes([UInt8(method.rawValue & 0xFF)])
 
-            var compressedBuf = self.registeredCompressors[method]!.compress(&packetbufWithLength)
+            var compressedBuf = compressor.compress(&packetbufWithLength)
 
             basebuf.writeBuffer(&compressedBuf)
         }
