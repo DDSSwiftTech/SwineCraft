@@ -116,10 +116,11 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
         packetbufWithLength.writeBuffer(&packetBuf)
 
         if var method = self.stateHandler.getCompressionMethod(forSource: sourceAddress) {
-            let compressor = self.registeredCompressors[method]!
+            var compressor = self.registeredCompressors[method]!
 
             if packetbufWithLength.readableBytes < compressor.compressionThreshold {
                 method = .None // never compress if below threshold
+                compressor = self.registeredCompressors[.None]!
             }
 
             print("COMPRESSING WITH \(method)")
