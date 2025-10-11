@@ -10,10 +10,12 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
     let stateHandler = MCPEStateHandler()
     let registeredCompressors: [CompressionMethod: Compressor] = [
         .DEFLATE: DeflateCompressor(),
+        .Snappy: SnappyCompressor(),
         .None: NoneCompressor()
     ]
     let registeredDecompressors: [CompressionMethod: Decompressor] = [
         .DEFLATE: InflateDecompressor(),
+        .Snappy: SnappyDecompressor(),
         .None: NoneDecompressor()
     ]
 
