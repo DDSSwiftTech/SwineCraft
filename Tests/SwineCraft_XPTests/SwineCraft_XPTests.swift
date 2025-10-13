@@ -2,6 +2,7 @@ import NIOCore
 import Foundation
 import Testing
 @testable import SwineCraft_XP
+@testable import SwiftNBT
 
 @Test func example() async throws {
     // Write your test here and use APIs like `#expect(...)` to check expected conditions.
@@ -33,4 +34,20 @@ import Testing
     let decompressedData = decompressor.decompress(&compressedData)
 
     #expect(originalData == decompressedData, "Original data == compressed data")
+}
+
+@Test func NBTTest() async throws {
+    let compound = try NBTNode(NBTCompound(
+        NBTNode(name: "myText", "My NBT text"),
+        NBTNode(name: "my Int32 Number", Int32(456)),
+        NBTNode(name: "Some List", NBTList(
+            NBTNode(Int8(5)),
+            NBTNode(Int8(5))
+        )),
+        NBTNode(name: "AnotherCompound", NBTCompound(
+            NBTNode(name: "Hello", Int8(30))
+        ))
+    ))
+
+    dump(compound.encodeNBT())
 }

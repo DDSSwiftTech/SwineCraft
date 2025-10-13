@@ -1,4 +1,4 @@
-enum AnimatePacket_Action: UInt8 {
+enum AnimatePacket_Action: UInt8, Codable {
     case NoAction = 0
     case Swing = 1
     case WakeUp = 3

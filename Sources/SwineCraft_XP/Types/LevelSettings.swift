@@ -2,4 +2,53 @@ struct LevelSettings {
     let seed: UInt64
     let spawnSettings: SpawnSettings
     let generatorType: UnsignedVarInt
+    let gameType: VarInt
+    let hardcoreModeEnabled: Bool
+    let gameDifficulty: VarInt
+    let defaultSpawnBlockPosition: NetworkBlockPosition
+    let achievementsDisabled: Bool
+    let editorWorldType: VarInt
+    let createdInEditor: Bool
+    let exportedFromEditor: Bool
+    let dayCycleStopTime: VarInt
+    let educationEditionOffer: VarInt
+    let educationFeaturesEnabled: Bool
+    let educationProductId: String
+    let rainLevel: Float
+    let lightingLevel: Float
+    let confirmedPlatformLockedContent: Bool
+    let multiplayerIntendedToBeEnabled: Bool
+    let LANBroadcastingIntendedToBeEnabled: Bool
+    let xboxLiveBroadcastingSetting: VarInt
+    let platformBroadcastSetting: VarInt
+    let commandsEnabled: Bool
+    let texturePacksRequired: Bool
+    let ruleData: GamesRulesChangedPacketData
+    let experiments: Experiments
+    let bonusChestEnabled: Bool
+    let startWithMapEnabled: Bool
+    let playerPermissions: VarInt
+    let serverChunkTickRange: Int
+    let hasLockedBehaviorPack: Bool
+    let hasLockedResourcePack: Bool
+    let isFromLockedTemplate: Bool
+    let useMSAGamertagsOnly: Bool
+    let createdFromTemplate: Bool = false
+    let islockedTemplate: Bool = false
+    let onlySpawnV1Villagers: Bool
+    let personaDisabled: Bool
+    let customSkinsDisabled: Bool
+    let emoteChatMuted: Bool
+    let baseGameVersion: String
+    let limitedWorldWidth: Int
+    let limitedWorldDepth: Int
+    let netherType: Bool
+    let eduSharedURIResource: EduSharedURIResource
+    let overrideForceExperimentalGameplayHasValue: Bool = false
+    let chatRestrictionLevel: UInt8
+    let disablePlayerInteractions: Bool
+    let serverIdentifier: String
+    let worldIdentifier: String
+    let scenarioIdentifier: String
+    let ownerIdentifier: String
 }

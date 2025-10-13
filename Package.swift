@@ -24,15 +24,22 @@ let package = Package(
             name: "SwiftSnappy",
             pkgConfig: "snappy"
         ),
+        .target(
+            name: "SwiftNBT",
+            dependencies: [
+                .product(name: "NIO", package: "swift-nio")
+            ],
+        ),
         .target(name: "SwakNet",
-        dependencies: [
-            .product(name: "NIO", package: "swift-nio")
+            dependencies: [
+                .product(name: "NIO", package: "swift-nio")
         ]),
         .executableTarget(
             name: "SwineCraft_XP", dependencies: [
                 .target(name: "SwakNet"),
                 .target(name: "SwiftZlib"),
                 .target(name: "SwiftSnappy"),
+                .target(name: "SwiftNBT"),
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "NIOExtras", package: "swift-nio-extras"),

@@ -1,4 +1,4 @@
-enum AgentActionType: UInt8 {
+enum AgentActionType: UInt8, Codable {
     case Attack = 1
     case Collect = 2
     case Destroy = 3

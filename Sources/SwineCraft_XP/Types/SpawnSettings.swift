@@ -1,5 +1,5 @@
 struct SpawnSettings {
     let type: MCPEShort
     let userDefinedBiomeName: String
-    let dimension: UnsignedVarInt
+    let dimension: VarInt
 }
