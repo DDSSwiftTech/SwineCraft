@@ -145,11 +145,9 @@ public struct NBTNode: Sendable {
             case .LONG:
                 buf.writeInteger(self.int64Val!, endianness: .little)
             case .FLOAT:
-                var floatBuf = withUnsafeBytes(of: self.floatVal) {ByteBuffer(bytes: $0)}
-                buf.writeBuffer(&floatBuf)
+                buf.writeInteger(self.floatVal!.bitPattern, endianness: .little)
             case .DOUBLE:
-                var doubleBuf = withUnsafeBytes(of: self.doubleVal) {ByteBuffer(bytes: $0)}
-                buf.writeBuffer(&doubleBuf)
+                buf.writeInteger(self.doubleVal!.bitPattern, endianness: .little)
             case .STRING:
                 buf.writeInteger(UInt16(self.stringVal!.utf8.count), endianness: .little)
                 buf.writeString(self.stringVal!)

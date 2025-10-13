@@ -41,13 +41,12 @@ import Testing
         NBTNode(name: "myText", "My NBT text"),
         NBTNode(name: "my Int32 Number", Int32(456)),
         NBTNode(name: "Some List", NBTList(
-            NBTNode(Int8(5)),
-            NBTNode(Int8(5))
+            NBTNode(NBTCompound(NBTNode(name: "TEST", 3.3)))
         )),
         NBTNode(name: "AnotherCompound", NBTCompound(
             NBTNode(name: "Int16List", NBTList(NBTNode(Int16(30))))
         ))
     ))
 
-    dump(compound.encodeNBT())
+    print(compound.encodeNBT().hexDump(format: .plain))
 }
