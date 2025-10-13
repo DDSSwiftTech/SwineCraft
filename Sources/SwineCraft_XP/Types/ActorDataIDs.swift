@@ -1,4 +1,4 @@
-enum ActorDataIDs: UInt32, Codable {
+enum ActorDataIDs: UInt32 {
     case RESERVED_0 = 0
     case STRUCTURAL_INTEGRITY = 1
     case VARIANT = 2

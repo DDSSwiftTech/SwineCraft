@@ -1,6 +1,6 @@
 import NIOCore
 
-struct NBTList {
+struct NBTList: Equatable {
     var listItems: [NBTNode] = []
     var itemType: NBTTagType? = nil
     

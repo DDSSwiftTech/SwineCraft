@@ -1,4 +1,4 @@
-enum ActorDamageCause: Int32, Codable {
+enum ActorDamageCause: Int32 {
     case None = -1
     case Override = 0
     case Contact = 1

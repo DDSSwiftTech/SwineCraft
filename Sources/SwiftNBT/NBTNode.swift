@@ -161,7 +161,7 @@ public struct NBTNode: Sendable {
                 buf.writeInteger(itemType.rawValue)
                 fallthrough
             case .BYTE_ARRAY, .INT_ARRAY, .LONG_ARRAY:
-                buf.writeInteger(UInt16(self.listVal!.listItems.count), endianness: .little)
+                buf.writeInteger(UInt32(self.listVal!.listItems.count), endianness: .little)
                 for item in self.listVal!.listItems {
                     item.encodeBody(&buf)
                 }
@@ -169,4 +169,19 @@ public struct NBTNode: Sendable {
                 break // need to finish implementing
         }
     }
+}
+
+extension NBTNode: Equatable {
+    public static func == (lhs: NBTNode, rhs: NBTNode) -> Bool {
+        lhs.int8Val == rhs.int8Val &&
+        lhs.int16Val == rhs.int16Val &&
+        lhs.int32Val == rhs.int32Val && 
+        lhs.int64Val == rhs.int64Val &&
+        lhs.floatVal == rhs.floatVal &&
+        lhs.doubleVal == rhs.doubleVal &&
+        lhs.stringVal == rhs.stringVal &&
+        lhs.listVal == rhs.listVal &&
+        lhs.compoudVal == rhs.compoudVal
+    }
+
 }

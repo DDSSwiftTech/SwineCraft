@@ -1,4 +1,4 @@
-enum ActorEvent: UInt32, Codable {
+enum ActorEvent: UInt32 {
     case NONE = 0
     case JUMP = 1
     case HURT = 2

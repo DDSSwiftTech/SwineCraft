@@ -1,6 +1,6 @@
 import NIOCore
 
-public struct NBTCompound: Sendable {
+public struct NBTCompound: Sendable, Equatable {
     var tagType: NBTTagType = .COMPOUND
     private var contents: [NBTNode] = []
 

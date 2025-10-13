@@ -1,4 +1,4 @@
-enum ActorFlags: UInt32, Codable {
+enum ActorFlags: UInt32 {
     case ONFIRE = 0
     case SNEAKING = 1
     case RIDING = 2

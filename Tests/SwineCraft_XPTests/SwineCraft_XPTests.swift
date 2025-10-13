@@ -45,7 +45,7 @@ import Testing
             NBTNode(Int8(5))
         )),
         NBTNode(name: "AnotherCompound", NBTCompound(
-            NBTNode(name: "Hello", Int8(30))
+            NBTNode(name: "Int16List", NBTList(NBTNode(Int16(30))))
         ))
     ))
 
