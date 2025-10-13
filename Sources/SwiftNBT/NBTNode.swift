@@ -129,12 +129,12 @@ public struct NBTNode: Sendable {
         buf.writeInteger(UInt16(self.name.utf8.count), endianness: .little)
         buf.writeString(self.name)
 
-        encodeNBTListElement(&buf)
+        encodeBody(&buf)
 
         return buf
     }
 
-    func encodeNBTListElement(_ buf: inout ByteBuffer) {
+    func encodeBody(_ buf: inout ByteBuffer) {
         switch self.tagType {
             case .BYTE:
                 buf.writeInteger(self.int8Val!, endianness: .little)
@@ -154,7 +154,7 @@ public struct NBTNode: Sendable {
                 buf.writeInteger(UInt16(self.stringVal!.utf8.count), endianness: .little)
                 buf.writeString(self.stringVal!)
             case .COMPOUND:
-                self.compoudVal!.encodeListElement(&buf)
+                self.compoudVal!.encodeBody(&buf)
             case .LIST:
                 let itemType = self.listVal!.itemType!
                 
@@ -163,7 +163,7 @@ public struct NBTNode: Sendable {
             case .BYTE_ARRAY, .INT_ARRAY, .LONG_ARRAY:
                 buf.writeInteger(UInt16(self.listVal!.listItems.count), endianness: .little)
                 for item in self.listVal!.listItems {
-                    item.encodeNBTListElement(&buf)
+                    item.encodeBody(&buf)
                 }
             default:
                 break // need to finish implementing

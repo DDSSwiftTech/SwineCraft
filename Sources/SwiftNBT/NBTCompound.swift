@@ -12,7 +12,7 @@ public struct NBTCompound: Sendable {
         self.contents += vals
     }
 
-    func encodeListElement(_ buf: inout ByteBuffer) {
+    func encodeBody(_ buf: inout ByteBuffer) {
         for value in self.contents {
             var _buf = value.encodeNBT()
 
