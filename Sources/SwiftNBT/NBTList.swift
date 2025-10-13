@@ -24,32 +24,4 @@ struct NBTList {
             try self.addElement(val)
         }
     }
-
-    // func encodeNBT() -> ByteBuffer {
-    //     for item in self.listItems {
-    //         item.encodeNBTListElement(buf: &buf)
-    //     }
-
-    //     return buf
-    // }
-
-    // func encodeNBTCompoundValue(_ buf: inout ByteBuffer) {
-    //     for item in self.listItems {
-    //         item.encodeNBTListElement(buf: &buf)
-    //     }
-
-    //     return buf
-    // }
-
-    // func encodeListElement(_ buf: inout ByteBuffer) {
-    //     if self.tagType == .LIST {
-    //         buf.writeInteger(self.listItems.first?.tagType.rawValue ?? NBTTagType.END.rawValue)
-    //     }
-
-    //     buf.writeInteger(UInt16(self.listItems.count), endianness: .little)
-
-    //     for item in self.listItems {
-    //         item.encodeListElement(&buf)
-    //     }
-    // }
 }
