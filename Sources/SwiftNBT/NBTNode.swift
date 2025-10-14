@@ -2,7 +2,7 @@ import NIOCore
 
 public struct NBTNode: Sendable {
     var tagType: NBTTagType
-    private var name: String = ""
+    var name: String = ""
 
     private var int8Val: Int8?
     private var int16Val: Int16?
@@ -13,6 +13,8 @@ public struct NBTNode: Sendable {
     private var stringVal: String?
     private var listVal: NBTList?
     private var compoudVal: NBTCompound?
+
+    init() {self.tagType = .END} // this should only be used for decoding
 
     init(name: String = "", _ value: Int8) {
         self.int8Val = value
@@ -113,14 +115,6 @@ public struct NBTNode: Sendable {
 
     func get() -> NBTCompound? {
         return self.compoudVal
-    }
-
-    func getName() -> String? {
-        return self.name
-    }
-    
-    func getType() -> NBTTagType {
-        return self.tagType
     }
 
     func encodeNBT() -> ByteBuffer {

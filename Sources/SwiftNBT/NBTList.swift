@@ -12,7 +12,7 @@ struct NBTList: Equatable {
 
     mutating func addElement(_ val: NBTNode) throws {
         guard self.itemType == nil || self.itemType == val.tagType else {
-            throw NBTInvalidListElement.Value(val)
+            throw NBTError.ListValue(val)
         }
 
         self.listItems.append(val)
