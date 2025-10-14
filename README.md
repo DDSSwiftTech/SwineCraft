@@ -16,3 +16,5 @@ What works so far:
 * SwakNet (RakNet) is functional enough for basic testing, but needs work
 * NetworkSettings handled!
 * LoginPacket received and processed/decoded
+* Gzip/Snappy compression
+* NBT Encoding
