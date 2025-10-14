@@ -3,7 +3,7 @@ import NIOCore
 struct NBTDouble: NBTEncodable {
     typealias ValueType = Double
 
-    let tagType: NBTTagType = .DOUBLE
+    static let tagType: NBTTagType = .DOUBLE
 
     var name: String = ""
     var value: ValueType

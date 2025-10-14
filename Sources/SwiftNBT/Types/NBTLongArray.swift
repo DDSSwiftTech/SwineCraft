@@ -3,7 +3,7 @@ import NIOCore
 struct NBTLongArray: NBTEncodable {
     typealias ValueType = [Int64]
 
-    let tagType: NBTTagType = .LONG_ARRAY
+    static let tagType: NBTTagType = .LONG_ARRAY
 
     var name: String
     var value: [Int64]
@@ -12,7 +12,7 @@ struct NBTLongArray: NBTEncodable {
         self.name = name
         self.value = value
     }
-    
+
     init(name: String, value: [Int64]) {
         self.name = name
         self.value = value

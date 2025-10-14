@@ -3,7 +3,7 @@ import NIOCore
 struct NBTByteArray: NBTEncodable {
     typealias ValueType = [Int8]
 
-    let tagType: NBTTagType = .BYTE_ARRAY
+    static let tagType: NBTTagType = .BYTE_ARRAY
 
     var name: String
     var value: [Int8]
@@ -12,7 +12,7 @@ struct NBTByteArray: NBTEncodable {
         self.name = name
         self.value = value
     }
-    
+
     init(name: String, value: ValueType) {
         self.name = name
         self.value = value

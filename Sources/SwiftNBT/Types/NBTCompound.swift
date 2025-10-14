@@ -3,7 +3,7 @@ import NIOCore
 public struct NBTCompound: NBTEncodable {
     public typealias ValueType = [any NBTEncodable]
     
-    public let tagType: NBTTagType = .COMPOUND
+    static public let tagType: NBTTagType = .COMPOUND
     
     public var name: String
     public var value: ValueType = []
