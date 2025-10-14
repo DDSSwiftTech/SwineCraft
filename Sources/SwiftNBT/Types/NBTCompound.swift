@@ -8,7 +8,7 @@ public struct NBTCompound: NBTEncodable {
     public var name: String
     public var value: ValueType = []
 
-    init(name: String = "", _ contents: any NBTEncodable & Sendable...) {
+    public init(name: String = "", _ contents: any NBTEncodable & Sendable...) {
         self.name = name
         self.value += contents
     }
