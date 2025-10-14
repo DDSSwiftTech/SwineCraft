@@ -40,7 +40,8 @@ import Testing
     let compound = NBTCompound(
         NBTString(name: "myText", value: "My NBT text"),
         NBTInt(name: "my Int32 Number", value: 456),
-        NBTIntArray(name: "ints", 1, 2, 3, 4, 5)
+        NBTIntArray(name: "ints", 1, 2, 3, 4, 5),
+        NBTList(name: "SomeTypes", NBTInt(value: 5))
     )
     
     var buf = ByteBuffer()
