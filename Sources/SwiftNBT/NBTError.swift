@@ -1,4 +1,4 @@
-enum NBTError: Error {
-    case ListValue(NBTNode)
-    case TagTypeDecode
-}
+// enum NBTError: Error {
+//     case ListValue(NBTNode)
+//     case TagTypeDecode
+// }

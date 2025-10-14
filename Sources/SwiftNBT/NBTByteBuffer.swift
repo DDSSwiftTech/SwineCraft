@@ -1,9 +1,7 @@
 import NIOCore
 
 extension ByteBuffer {
-    mutating func writeNBT(_ node: NBTNode) {
-        var buf = node.encodeNBT()
-        
-        self.writeBuffer(&buf)
+    mutating func writeNBT(_ node: any NBTEncodable) {
+        node.encodeFull(&self)
     }
 }

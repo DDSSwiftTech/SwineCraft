@@ -1,4 +1,4 @@
-enum NBTTagType: UInt8 {
+public enum NBTTagType: UInt8, Sendable {
     case END
     case BYTE
     case SHORT

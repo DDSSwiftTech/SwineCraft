@@ -37,16 +37,15 @@ import Testing
 }
 
 @Test func NBTTest() async throws {
-    let compound = try NBTNode(NBTCompound(
-        NBTNode(name: "myText", "My NBT text"),
-        NBTNode(name: "my Int32 Number", Int32(456)),
-        NBTNode(name: "Some List", NBTList(
-            NBTNode(NBTCompound(NBTNode(name: "TEST", 3.3)))
-        )),
-        NBTNode(name: "AnotherCompound", NBTCompound(
-            NBTNode(name: "Int16List", NBTList(NBTNode(Int16(30))))
-        ))
-    ))
+    let compound = NBTCompound(
+        NBTString(name: "myText", value: "My NBT text"),
+        NBTInt(name: "my Int32 Number", value: 456),
+        NBTIntArray(name: "ints", 1, 2, 3, 4, 5)
+    )
+    
+    var buf = ByteBuffer()
 
-    print(compound.encodeNBT().hexDump(format: .plain))
+    compound.encodeFull(&buf)
+
+    print(buf)
 }
