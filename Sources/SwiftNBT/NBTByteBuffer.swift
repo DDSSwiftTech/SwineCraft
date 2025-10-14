@@ -4,9 +4,9 @@ extension ByteBuffer {
     init(_ node: any NBTEncodable) {
         self.init()
 
-        node.encodeBody(&self)
+        node.encodeFull(&self)
     }
-    
+
     mutating func writeNBT(_ node: any NBTEncodable) {
         node.encodeFull(&self)
     }
