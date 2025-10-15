@@ -38,15 +38,26 @@ import Testing
 
 @Test func NBTTest() async throws {
     let compound = NBTCompound(
-        NBTString(name: "myText", value: "My NBT text"),
-        NBTInt(name: "my Int32 Number", value: 456),
-        NBTIntArray(name: "ints", 1, 2, 3, 4, 5),
-        NBTList(name: "SomeTypes", NBTShort(value: 5))
+        NBTByte(name: "TestB", value: 20),
+        NBTByteArray(name: "TestBA", value: [1, 2, 3]),
+        NBTCompound(name: "TestC", NBTCompound()),
+        NBTDouble(name: "TestD", value: 3.3),
+        NBTFloat(name: "TestF", value: 3.3),
+        NBTInt(name: "TestI", value: 500),
+        NBTIntArray(name: "TestIA", value: [1, 2, 3]),
+        NBTLong(name: "TestL", value: 3000),
+        NBTLongArray(name: "TestLA", value: [1, 2, 3]),
+        NBTShort(name: "TestSI", value: 4040),
+        NBTString(name: "TestS", value: "hello"),
     )
     
     var buf = ByteBuffer()
 
     compound.encodeFull(&buf)
+
+    let decodedCompound = try NBTCompound(full: &buf)
+
+    #expect(compound == decodedCompound, "compound decoded: \(decodedCompound)")
 
     print(buf)
 }

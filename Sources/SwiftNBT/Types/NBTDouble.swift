@@ -11,4 +11,13 @@ struct NBTDouble: NBTEncodable {
     func encodeBody(_ buf: inout ByteBuffer) {
         buf.writeInteger(self.value.bitPattern, endianness: .little)
     }
+
+    init(name: String, value: Double) {
+        self.name = name
+        self.value = value
+    }
+
+    init(body buf: inout NIOCore.ByteBuffer) throws {
+        self.value = Double(bitPattern: buf.readInteger(endianness: .little)!)
+    }
 }

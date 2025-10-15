@@ -1,29 +1,52 @@
-import NIOCore
+// import NIOCore
 
-struct NBTList<T>: NBTEncodable where T: NBTEncodable {
-    typealias ValueType = [T]
+// protocol NBTList: NBTEncodable {
+//     associatedtype Element: NBTEncodable
 
-    static var tagType: NBTTagType { .LIST }
+//     init()
+// }
 
-    var name: String
-    var value: [T]
+// extension NBTList where ValueType: MutableCollection, ValueType.Element: NBTEncodable {
+//     static var tagType: NBTTagType { .LIST }
 
-    init(name: String = "", _ value: T...) {
-        self.name = name
-        self.value = value
-    }
-
-    init(name: String, value: [T]) {
-        self.name = name
-        self.value = value
-    }
-
-    func encodeBody(_ buf: inout NIOCore.ByteBuffer) {
-        buf.writeInteger(Self.ValueType.Element.tagType.rawValue)
-        buf.writeInteger(UInt32(self.value.count), endianness: .little)
+//     func encodeBody(_ buf: inout NIOCore.ByteBuffer) {
+//         buf.writeInteger(Self.ValueType.Element.tagType.rawValue)
+//         buf.writeInteger(UInt32(self.value.count), endianness: .little)
         
-        for item in value {
-            item.encodeBody(&buf)
-        }
-    }
-}
+//         for item in value {
+//             item.encodeBody(&buf)
+//         }
+//     }
+
+//     init(body buf: inout ByteBuffer) throws {
+//         self.init()
+//         self.name = ""
+//         self.value = 
+//         buf.writeBytes(Sequence)
+//     }
+// }
+
+// struct NBTList_Byte: NBTList {
+//     init(name: String, value: [Element]) {
+//         self.name = name
+//         self.value = value
+//     }
+
+//     typealias Element = NBTByte
+//     typealias ValueType = [Element]
+
+//     var value: [Element]
+
+//     var name: String
+
+//     init() {
+//         self.name = ""
+//         self.value = []
+//     }
+
+//     func encodeBody(_ buf: inout NIOCore.ByteBuffer) {
+        
+//     }
+
+    
+// }
