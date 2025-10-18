@@ -62,5 +62,5 @@ import Testing
 }
 
 @Test func NBTFileTest() async throws {
-    print(try NBTCompound(fromFile: URL(filePath: "/home/david/swift_projects/SwineCraft_XP/Tests/SwineCraft_XPTests/level.dat")))
+    print(try NBTCompound(fromFile: URL(filePath: "/" + #filePath.split(separator: "/").dropLast().joined(separator: "/") + "/level.dat")))
 }
