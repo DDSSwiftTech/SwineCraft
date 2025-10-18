@@ -1,7 +1,6 @@
 import NIOCore
 
 struct NBTString: NBTEncodable {
-
     typealias ValueType = String
 
     let tagType: NBTTagType = .STRING
