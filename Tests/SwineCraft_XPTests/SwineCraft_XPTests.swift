@@ -59,8 +59,33 @@ import Testing
     let decodedCompound = try NBTCompound(full: &buf, endianness: .little)
 
     #expect(compound == decodedCompound, "compound decoded: \(decodedCompound)")
+
+    let unequalCompound = NBTCompound(
+        NBTByte(name: "TestB", value: 22),
+        NBTByteArray(name: "TestBA", value: [1, 2, 3, 4]),
+        NBTCompound(name: "TestC", NBTCompound()),
+        NBTDouble(name: "TestD", value: 3.4),
+        NBTFloat(name: "TestF", value: 3.4),
+        NBTInt(name: "TestI", value: 501),
+        NBTIntArray(name: "TestIA", value: [1, 2, 3, 4]),
+        NBTLong(name: "TestL", value: 3001),
+        NBTLongArray(name: "TestLA", value: [1, 2, 3, 4]),
+        NBTShort(name: "TestSI", value: 4041),
+        NBTString(name: "TestS", value: "hello world"),
+        NBTList(name: "TestLIST", value: [NBTShort(value: 6), NBTShort(value: 11)])
+    )
+
+    #expect(compound != unequalCompound)
 }
 
 @Test func NBTFileTest() async throws {
-    print(try NBTCompound(fromFile: URL(filePath: "/" + #filePath.split(separator: "/").dropLast().joined(separator: "/") + "/level.dat")))
+    let fileURL = URL(filePath: "/" + #filePath.split(separator: "/").dropLast().joined(separator: "/") + "/level.dat")
+
+    let nbtFileCompound = try NBTCompound(fromFile: fileURL)
+
+    var encodedbuffer = ByteBuffer()
+
+    nbtFileCompound.encodeFile(&encodedbuffer)
+
+    #expect(ByteBuffer(bytes: try Data(contentsOf: fileURL)) == encodedbuffer)
 }
