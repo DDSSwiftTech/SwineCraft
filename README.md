@@ -17,9 +17,4 @@ What works so far:
 * NetworkSettings handled!
 * LoginPacket received and processed/decoded
 * Gzip/Snappy compression
-* NBT Encoding (all but NBTList)
-* NBT Decoding (all but NBTList)
-
-## TODO
-
-* Implement NBT List
+* Full NBT encode/decode support
