@@ -5,6 +5,7 @@ enum NBTError: Error {
         case ARRAY_COUNT
         case STRING
         case CORRUPT_FILE
+        case LIST_ELEMENTS_DONT_MATCH
     }
 
     case BUFFER_DECODE(reason: BUFFER_DECODE_REASON)

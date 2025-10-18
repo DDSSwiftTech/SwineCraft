@@ -49,7 +49,7 @@ import Testing
         NBTLongArray(name: "TestLA", value: [1, 2, 3]),
         NBTShort(name: "TestSI", value: 4040),
         NBTString(name: "TestS", value: "hello"),
-        NBTList(name: "TestLIST", value: [NBTShort(value: 5), NBTShort(value: 10)])
+        try NBTList(name: "TestLIST", value: [NBTShort(value: 5), NBTShort(value: 10)])
     )
     
     var buf = ByteBuffer()
@@ -72,10 +72,14 @@ import Testing
         NBTLongArray(name: "TestLA", value: [1, 2, 3, 4]),
         NBTShort(name: "TestSI", value: 4041),
         NBTString(name: "TestS", value: "hello world"),
-        NBTList(name: "TestLIST", value: [NBTShort(value: 6), NBTShort(value: 11)])
+        try NBTList(name: "TestLIST", value: [NBTShort(value: 6), NBTShort(value: 11)])
     )
 
     #expect(compound != unequalCompound)
+
+    let invalidList = try? NBTList(name: "TestInvalidLIST", value: [NBTByte(name: "", value: 1), NBTShort(name: "", value: 1)])
+
+    #expect(invalidList == nil, "This should throw, but we're making it nil for testing")
 }
 
 @Test func NBTFileTest() async throws {

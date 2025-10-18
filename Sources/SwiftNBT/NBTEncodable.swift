@@ -8,7 +8,7 @@ public protocol NBTEncodable: Sendable, Equatable {
     var name: String { get set }
     var value: ValueType { get set }
 
-    init(name: String, value: ValueType)
+    init(name: String, value: ValueType) throws
     init(full buf: inout ByteBuffer, endianness: Endianness) throws
     init(body buf: inout ByteBuffer, endianness: Endianness) throws
 
@@ -59,7 +59,7 @@ extension NBTEncodable where ValueType: RangeReplaceableCollection, ValueType.El
             values.append(buf.readInteger(endianness: endianness)!)
         }
         
-        self.init(name: "", value: values)
+        try self.init(name: "", value: values)
     }
 }
 
@@ -118,6 +118,6 @@ extension NBTEncodable where ValueType: FixedWidthInteger {
     }
 
     init(body buf: inout ByteBuffer, endianness: Endianness) throws {
-        self.init(name: "", value: buf.readInteger(endianness: endianness)!)
+        try self.init(name: "", value: buf.readInteger(endianness: endianness)!)
     }
 }

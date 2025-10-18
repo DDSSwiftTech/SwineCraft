@@ -1,4 +1,5 @@
 import NIOCore
+import Foundation
 
 
 struct NBTList: NBTEncodable {
@@ -8,13 +9,21 @@ struct NBTList: NBTEncodable {
     var value: ValueType = []
     var name: String
 
-    init(name: String, value: [some NBTEncodable]) {
+    init(name: String, value: [any NBTEncodable]) throws {
         self.name = name
-        self.value = value
-    }
 
-    init(name: String, value: [any NBTEncodable]) {
-        self.name = name
+        // check that they're all the same type if there's more than one element
+        // Must be the case for a List, and can't use Some...
+        if value.count > 1 {
+            let firstElemType = type(of: value.first!)
+
+            guard value.allSatisfy({ (item) in
+                type(of: item) == firstElemType
+            }) else {
+                throw NBTError.BUFFER_DECODE(reason: .LIST_ELEMENTS_DONT_MATCH)
+            }
+        }
+
         self.value = value
     }
 
