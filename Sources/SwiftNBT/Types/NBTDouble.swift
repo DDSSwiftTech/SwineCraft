@@ -8,10 +8,6 @@ struct NBTDouble: NBTEncodable {
     var name: String = ""
     var value: ValueType
 
-    func encodeBody(_ buf: inout ByteBuffer) {
-        buf.writeInteger(self.value.bitPattern, endianness: .little)
-    }
-
     init(name: String, value: Double) {
         self.name = name
         self.value = value
@@ -19,5 +15,9 @@ struct NBTDouble: NBTEncodable {
 
     init(body buf: inout NIOCore.ByteBuffer) throws {
         self.value = Double(bitPattern: buf.readInteger(endianness: .little)!)
+    }
+
+    func encodeBody(_ buf: inout ByteBuffer) {
+        buf.writeInteger(self.value.bitPattern, endianness: .little)
     }
 }
