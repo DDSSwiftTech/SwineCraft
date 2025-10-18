@@ -5,6 +5,6 @@ struct OfflineConnectionResponse2: RakNetOfflinePacket {
     let magic: UInt128
     let serverGUID: UInt64 = RakNetConfig.shared.GUID
     let clientAddress: RakNetAddress
-    let mtuSize: UInt16 // assumption for now
+    let mtuSize: UInt16
     let requiresEncryption: UInt8 = 0
 }
