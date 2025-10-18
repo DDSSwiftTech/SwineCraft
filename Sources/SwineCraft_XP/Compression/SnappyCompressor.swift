@@ -9,21 +9,15 @@ class SnappyCompressor: Compressor {
     required init() {}
 
     func compress(_ inbuf: inout ByteBuffer) -> ByteBuffer {
-        let outbuf = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: snappy_max_compressed_length(inbuf.readableBytes))
+        var outputLength = snappy_max_compressed_length(inbuf.readableBytes)
+        var resultBuf = ByteBufferAllocator().buffer(capacity: outputLength)
+        let readableBytesView = Array<UInt8>(inbuf.readableBytesView)
 
-        defer {outbuf.deallocate()}
-
-        inbuf.readWithUnsafeReadableBytes { inbufptr in
-            var outputLength = snappy_max_compressed_length(inbufptr.count)
-
-            let _ = snappy_compress(inbufptr.baseAddress, inbufptr.count, outbuf.baseAddress, &outputLength)
+        let bytesRead = resultBuf.writeWithUnsafeMutableBytes(minimumWritableBytes: outputLength) { outptr in
+            let _ = snappy_compress(readableBytesView, inbuf.readableBytes, outptr.baseAddress, &outputLength)
 
             return outputLength
         }
-
-        var resultBuf = ByteBuffer()
-
-        resultBuf.writeBytes(outbuf)
         
         return resultBuf
     }

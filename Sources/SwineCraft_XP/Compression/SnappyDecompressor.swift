@@ -8,27 +8,19 @@ class SnappyDecompressor: Decompressor {
     required init() {}
 
     func decompress(_ inbuf: inout ByteBuffer) -> ByteBuffer {
-        var resultBuf = ByteBuffer()
+        let readableBytesView = Array<UInt8>(inbuf.readableBytesView)
+        var uncompressedLength = 0
 
-        inbuf.readWithUnsafeReadableBytes { inbufptr in
-            var uncompressedLength = 0
+        snappy_uncompressed_length(readableBytesView, readableBytesView.count, &uncompressedLength)
 
-            snappy_uncompressed_length(inbufptr.baseAddress, inbufptr.count, &uncompressedLength)
+        var resultBuf = ByteBufferAllocator().buffer(capacity: uncompressedLength)
 
-            let outbuf = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: uncompressedLength)
+        let bytesRead = resultBuf.writeWithUnsafeMutableBytes(minimumWritableBytes: uncompressedLength) { outptr in
+            let _ = snappy_uncompress(readableBytesView, readableBytesView.count, outptr.baseAddress, &uncompressedLength)
 
-            defer {outbuf.deallocate()}
-
-            var outputLength = uncompressedLength
-
-            let _ = snappy_uncompress(inbufptr.baseAddress, inbufptr.count, outbuf.baseAddress, &outputLength)
-
-            resultBuf.writeBytes(outbuf)
-
-            return outputLength
+            return uncompressedLength
         }
         
         return resultBuf
-
     }
 }
