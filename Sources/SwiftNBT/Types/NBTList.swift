@@ -30,7 +30,7 @@ struct NBTList: NBTEncodable {
         for _ in 0..<count {
             let elementType: any NBTEncodable.Type
 
-            elementType = {
+            elementType = try {
                 switch elemTagType {
                     case .BYTE:
                         NBTByte.self
@@ -57,7 +57,9 @@ struct NBTList: NBTEncodable {
                     case .STRING:
                         NBTString.self
                     case .END:
-                        NBTByte.self 
+                        // This case is only possible, if the element type is specified as END
+                        // and there is a non-zero count. That should not be possible, so throw.
+                        throw NBTError.BUFFER_DECODE(reason: .TAG_TYPE)
                 }
             }()
 
