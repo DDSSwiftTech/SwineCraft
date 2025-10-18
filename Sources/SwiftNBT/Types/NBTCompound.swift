@@ -87,18 +87,18 @@ public struct NBTCompound: NBTEncodable {
         }
     }
 
-    public func encodeBody(_ buf: inout ByteBuffer) {
+    public func encodeBody(_ buf: inout ByteBuffer) throws {
         for item in self.value {
-            item.encodeFull(&buf)
+            try item.encodeFull(&buf)
         }
 
         buf.writeInteger(UInt8(0)) // "End tag", otherwise known as a null byte
     }
 
-    public func encodeFile(_ outbuf: inout ByteBuffer) {
+    public func encodeFile(_ outbuf: inout ByteBuffer) throws {
         var buf = ByteBuffer()
 
-        self.encodeFull(&buf)
+        try self.encodeFull(&buf)
 
         outbuf.writeInteger(self.fileVersion ?? 10, endianness: .little)
         outbuf.writeInteger(UInt32(buf.readableBytes), endianness: .little)

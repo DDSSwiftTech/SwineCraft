@@ -54,7 +54,7 @@ import Testing
     
     var buf = ByteBuffer()
 
-    compound.encodeFull(&buf)
+    try compound.encodeFull(&buf)
 
     let decodedCompound = try NBTCompound(full: &buf, endianness: .little)
 
@@ -85,7 +85,7 @@ import Testing
 
     var encodedbuffer = ByteBuffer()
 
-    nbtFileCompound.encodeFile(&encodedbuffer)
+    try nbtFileCompound.encodeFile(&encodedbuffer)
 
     #expect(ByteBuffer(bytes: try Data(contentsOf: fileURL)) == encodedbuffer)
 }

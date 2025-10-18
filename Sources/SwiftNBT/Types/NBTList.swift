@@ -68,8 +68,8 @@ struct NBTList: NBTEncodable {
     }
 
 
-    func encodeBody(_ buf: inout NIOCore.ByteBuffer) {
-        let elementTagType: NBTTagType = {
+    func encodeBody(_ buf: inout NIOCore.ByteBuffer) throws {
+        let elementTagType: NBTTagType = try {
             switch self.value {
                 case is [NBTByte]:
                     return .BYTE
@@ -96,14 +96,14 @@ struct NBTList: NBTEncodable {
                 case is [NBTList]:
                     return .LIST
                 default:
-                    return .END
+                    throw NBTError.BUFFER_DECODE(reason: .TAG_TYPE) // should not be possible
             }
         }()
         buf.writeInteger(elementTagType.rawValue)
         buf.writeInteger(UInt32(self.value.count), endianness: .little)
         
         for item in value {
-            item.encodeBody(&buf)
+            try item.encodeBody(&buf)
         }
     }
 }

@@ -12,17 +12,17 @@ public protocol NBTEncodable: Sendable, Equatable {
     init(full buf: inout ByteBuffer, endianness: Endianness) throws
     init(body buf: inout ByteBuffer, endianness: Endianness) throws
 
-    func encodeFull(_ buf: inout ByteBuffer)
-    func encodeBody(_ buf: inout ByteBuffer)
+    func encodeFull(_ buf: inout ByteBuffer) throws
+    func encodeBody(_ buf: inout ByteBuffer) throws
 }
 
 extension NBTEncodable {
-    public func encodeFull(_ buf: inout ByteBuffer) {
+    public func encodeFull(_ buf: inout ByteBuffer) throws {
         buf.writeInteger(self.tagType.rawValue)
         buf.writeInteger(UInt16(self.name.utf8.count), endianness: .little)
         buf.writeString(self.name)
 
-        self.encodeBody(&buf)
+        try self.encodeBody(&buf)
     }
 
     public init(full buf: inout ByteBuffer, endianness: Endianness) throws {
@@ -40,7 +40,7 @@ extension NBTEncodable {
 }
 
 extension NBTEncodable where ValueType: RangeReplaceableCollection, ValueType.Element: FixedWidthInteger {
-    func encodeBody(_ buf: inout ByteBuffer) {
+    func encodeBody(_ buf: inout ByteBuffer) throws {
         buf.writeInteger(UInt32(self.value.count), endianness: .little)
         
         for item in value {
@@ -113,7 +113,7 @@ extension NBTEncodable where ValueType: Equatable {
 }
 
 extension NBTEncodable where ValueType: FixedWidthInteger {
-    func encodeBody(_ buf: inout ByteBuffer) {
+    func encodeBody(_ buf: inout ByteBuffer) throws {
         buf.writeInteger(self.value, endianness: .little)
     }
 
