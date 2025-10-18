@@ -49,6 +49,7 @@ import Testing
         NBTLongArray(name: "TestLA", value: [1, 2, 3]),
         NBTShort(name: "TestSI", value: 4040),
         NBTString(name: "TestS", value: "hello"),
+        NBTList(name: "TestLIST", value: [NBTShort(value: 5), NBTShort(value: 10)])
     )
     
     var buf = ByteBuffer()

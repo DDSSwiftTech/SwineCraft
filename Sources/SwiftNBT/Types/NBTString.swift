@@ -4,7 +4,7 @@ struct NBTString: NBTEncodable {
 
     typealias ValueType = String
 
-    static let tagType: NBTTagType = .STRING
+    let tagType: NBTTagType = .STRING
 
     var name: String = ""
     var value: ValueType

@@ -3,7 +3,7 @@ import NIOCore
 struct NBTFloat: NBTEncodable {
     typealias ValueType = Float
 
-    static let tagType: NBTTagType = .FLOAT
+    let tagType: NBTTagType = .FLOAT
 
     var name: String = ""
     var value: ValueType
