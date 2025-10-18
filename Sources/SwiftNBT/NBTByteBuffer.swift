@@ -1,4 +1,5 @@
 import NIOCore
+import Foundation
 
 extension ByteBuffer {
     init(_ node: any NBTEncodable) {

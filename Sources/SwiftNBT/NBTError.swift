@@ -4,6 +4,7 @@ enum NBTError: Error {
         case NAME_STRING
         case ARRAY_COUNT
         case STRING
+        case CORRUPT_FILE
     }
 
     case BUFFER_DECODE(reason: BUFFER_DECODE_REASON)

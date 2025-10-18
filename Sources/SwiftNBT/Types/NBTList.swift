@@ -18,12 +18,12 @@ struct NBTList: NBTEncodable {
         self.value = value
     }
 
-    init(body buf: inout ByteBuffer) throws {
+    init(body buf: inout ByteBuffer, endianness: Endianness) throws {
         self.name = ""
 
         guard let elemTagTypeRaw: UInt8 = buf.readInteger(),
         let elemTagType: NBTTagType = NBTTagType(rawValue: elemTagTypeRaw),
-        let count = buf.readInteger(endianness: .little) as UInt32? else {
+        let count = buf.readInteger(endianness: endianness) as UInt32? else {
             throw NBTError.BUFFER_DECODE(reason: .TAG_TYPE)
         }
 
@@ -61,7 +61,7 @@ struct NBTList: NBTEncodable {
                 }
             }()
 
-            self.value.append(try elementType.init(body: &buf))
+            self.value.append(try elementType.init(body: &buf, endianness: endianness))
         }
     }
 

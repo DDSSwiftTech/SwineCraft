@@ -13,8 +13,8 @@ struct NBTString: NBTEncodable {
         self.value = value
     }
 
-    init(body buf: inout NIOCore.ByteBuffer) throws {
-        guard let stringLength: UInt16 = buf.readInteger(endianness: .little),
+    init(body buf: inout NIOCore.ByteBuffer, endianness: Endianness) throws {
+        guard let stringLength: UInt16 = buf.readInteger(endianness: endianness),
         let decodedString = buf.readString(length: Int(stringLength)) else {
             throw NBTError.BUFFER_DECODE(reason: .STRING)
         }

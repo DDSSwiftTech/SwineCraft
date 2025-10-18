@@ -56,9 +56,11 @@ import Testing
 
     compound.encodeFull(&buf)
 
-    let decodedCompound = try NBTCompound(full: &buf)
+    let decodedCompound = try NBTCompound(full: &buf, endianness: .little)
 
     #expect(compound == decodedCompound, "compound decoded: \(decodedCompound)")
+}
 
-    print(buf)
+@Test func NBTFileTest() async throws {
+    print(try NBTCompound(fromFile: URL(filePath: "/home/david/swift_projects/SwineCraft_XP/Tests/SwineCraft_XPTests/level.dat")))
 }

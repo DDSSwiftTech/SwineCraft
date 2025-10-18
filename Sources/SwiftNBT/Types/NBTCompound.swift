@@ -1,4 +1,5 @@
 import NIOCore
+import Foundation
 
 public struct NBTCompound: NBTEncodable {
     public typealias ValueType = [any NBTEncodable]
@@ -18,7 +19,26 @@ public struct NBTCompound: NBTEncodable {
         self.value = value
     }
 
-    public init(body buf: inout ByteBuffer) throws {
+    public init(fromFile fileURL: URL) throws {
+        guard let nbtFileData = FileManager.default.contents(atPath: fileURL.path) else {
+            throw NBTError.BUFFER_DECODE(reason: .CORRUPT_FILE)
+        }
+
+        var buf = ByteBuffer(bytes: nbtFileData)
+
+        let version: UInt32 = buf.readInteger(endianness: .little)!
+        print("FILE VERSION: \(version)")
+        
+        let bufExpectedLength: UInt32 = buf.readInteger(endianness: .little)!
+
+        guard buf.readableBytes == bufExpectedLength else {
+            throw NBTError.BUFFER_DECODE(reason: .CORRUPT_FILE)
+        }
+
+        try self.init(full: &buf, endianness: .little)
+    }
+
+    public init(body buf: inout ByteBuffer, endianness: Endianness) throws {
         self.name = ""
         
         while let tagTypeInt: UInt8 = buf.peekInteger(),
@@ -27,32 +47,32 @@ public struct NBTCompound: NBTEncodable {
 
             switch tagType {
                 case .BYTE:
-                    self.value.append(try NBTByte(full: &buf))
+                    self.value.append(try NBTByte(full: &buf, endianness: endianness))
                 case .BYTE_ARRAY:
-                    self.value.append(try NBTByteArray(full: &buf))
+                    self.value.append(try NBTByteArray(full: &buf, endianness: endianness))
                 case .COMPOUND:
-                    self.value.append(try NBTCompound(full: &buf))
+                    self.value.append(try NBTCompound(full: &buf, endianness: endianness))
                 case .DOUBLE:
-                    self.value.append(try NBTDouble(full: &buf))
+                    self.value.append(try NBTDouble(full: &buf, endianness: endianness))
                 case .END:
                     let _: UInt8? = buf.readInteger() // dispose of end tag from buf
                     endLoop = true
                 case .FLOAT:
-                    self.value.append(try NBTFloat(full: &buf))
+                    self.value.append(try NBTFloat(full: &buf, endianness: endianness))
                 case .INT:
-                    self.value.append(try NBTInt(full: &buf))
+                    self.value.append(try NBTInt(full: &buf, endianness: endianness))
                 case .INT_ARRAY:
-                    self.value.append(try NBTIntArray(full: &buf))
+                    self.value.append(try NBTIntArray(full: &buf, endianness: endianness))
                 case .LIST:
-                    self.value.append(try NBTList(full: &buf))
+                    self.value.append(try NBTList(full: &buf, endianness: endianness))
                 case .LONG:
-                    self.value.append(try NBTLong(full: &buf))
+                    self.value.append(try NBTLong(full: &buf, endianness: endianness))
                 case .LONG_ARRAY:
-                    self.value.append(try NBTLongArray(full: &buf))
+                    self.value.append(try NBTLongArray(full: &buf, endianness: endianness))
                 case .SHORT:
-                    self.value.append(try NBTShort(full: &buf))
+                    self.value.append(try NBTShort(full: &buf, endianness: endianness))
                 case .STRING:
-                    self.value.append(try NBTString(full: &buf))
+                    self.value.append(try NBTString(full: &buf, endianness: endianness))
             }
 
             if endLoop {
