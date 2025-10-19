@@ -6,35 +6,20 @@ public extension ByteBuffer {
     typealias UInt24 = UInt32
     
     mutating func readMagic() -> UInt128? {
-        guard let magic: UInt128 = self.readInteger() else {
-            return nil
-        }
-
-        return magic
+        self.readInteger()
     }
 
     mutating func readTime() -> UInt64? {
-        guard let time: UInt64 = self.readInteger() else {
-            return nil
-        }
-
-        return time
+        self.readInteger()
     }
 
     mutating func readGUID() -> UInt64? {
-        guard let guid: UInt64 = self.readInteger() else {
-            return nil
-        }
-
-        return guid
+        self.readInteger()
     }
 
     mutating func readServerIDString() -> String? {
-        guard let serverIDStringLength: UInt16 = self.readInteger() else {
-            return nil
-        }
-
-        guard let serverIDStringBytes = self.readBytes(length: Int(serverIDStringLength)) else {
+        guard let serverIDStringLength: UInt16 = self.readInteger(),
+        let serverIDStringBytes = self.readBytes(length: Int(serverIDStringLength)) else {
             return nil
         }
 
@@ -42,11 +27,7 @@ public extension ByteBuffer {
     }
 
     mutating func readProtocolVersion() -> UInt8? {
-        guard let protocolVersion = self.readBytes(length: 1) else {
-            return nil
-        }
-
-        return protocolVersion[0]
+        self.readBytes(length: 1)?.first
     }
 
     mutating func readUInt24(endianness: Endianness = .little) -> UInt32? { // Returns UInt32, but only ever reads 3 bytes of data
@@ -71,21 +52,16 @@ public extension ByteBuffer {
     }
 
     mutating func writeUInt24(_ uint24le: UInt32, endianness: Endianness) {
-        var bytes: [UInt8] = [
+        let bytes: [UInt8] = [
             UInt8(uint24le >> 16 & 0xff),
             UInt8(uint24le >> 8 & 0xff),
             UInt8(uint24le & 0xff)
         ]
-        
-        if endianness == .little{
-            bytes.reverse()
-        }
 
-        self.writeBytes(bytes)
+        self.writeBytes(endianness == .little ? bytes.reversed() : bytes)
     }
 
     mutating func readAddress() -> RakNetAddress {
-
         if self.readBytes(length: 1)?.first == 4 {
             return RakNetAddress(ip: .v4(
                     ~self.readInteger()!,
