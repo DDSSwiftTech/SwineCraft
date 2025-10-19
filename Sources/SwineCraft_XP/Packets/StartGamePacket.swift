@@ -1,5 +1,6 @@
 import NIOCore
 import Foundation
+import SwiftNBT
 
 struct StartGamePacket: MCPEPacket {
     var packetType: MCPEPacketType = .START_GAME
@@ -18,4 +19,13 @@ struct StartGamePacket: MCPEPacket {
     let levelCurrentTime: UInt64
     let enchantmentSeed: VarInt
     let blockProperties: [BlockProperty]
+    let multiplayerCorrelationID: String
+    let enableItemStackNetManager: Bool
+    let serverVersion: String
+    let playerPropertyData: NBTCompound
+    let serverBlockTypeRegistryChecksum: UInt64
+    let worldTemplateID: UUID
+    let serverEnabledClientSideGeneration: Bool
+    let blockTypesAreHashes: Bool
+    let networkPermissions: NetworkPermissions
 }
