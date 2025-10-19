@@ -3,7 +3,7 @@ import NIOCore
 
 struct NBTFile {
     public let fileCompound: NBTCompound
-    private var fileVersion: UInt32? = nil
+    private var fileVersion: UInt32
 
     public init(fromFile fileURL: URL) throws {
         guard let nbtFileData = FileManager.default.contents(atPath: fileURL.path) else {
