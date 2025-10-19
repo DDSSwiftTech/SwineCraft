@@ -13,7 +13,7 @@ class SnappyCompressor: Compressor {
         var resultBuf = ByteBufferAllocator().buffer(capacity: outputLength)
         let readableBytesView = Array<UInt8>(inbuf.readableBytesView)
 
-        let bytesRead = resultBuf.writeWithUnsafeMutableBytes(minimumWritableBytes: outputLength) { outptr in
+        let _ = resultBuf.writeWithUnsafeMutableBytes(minimumWritableBytes: outputLength) { outptr in
             let _ = snappy_compress(readableBytesView, inbuf.readableBytes, outptr.baseAddress, &outputLength)
 
             return outputLength

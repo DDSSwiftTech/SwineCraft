@@ -15,7 +15,7 @@ class SnappyDecompressor: Decompressor {
 
         var resultBuf = ByteBufferAllocator().buffer(capacity: uncompressedLength)
 
-        let bytesRead = resultBuf.writeWithUnsafeMutableBytes(minimumWritableBytes: uncompressedLength) { outptr in
+        let _ = resultBuf.writeWithUnsafeMutableBytes(minimumWritableBytes: uncompressedLength) { outptr in
             let _ = snappy_uncompress(readableBytesView, readableBytesView.count, outptr.baseAddress, &uncompressedLength)
 
             return uncompressedLength
