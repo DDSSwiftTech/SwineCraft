@@ -8,7 +8,6 @@ public struct NBTCompound: NBTEncodable {
     
     public var name: String
     public var value: ValueType = []
-    private var fileVersion: UInt32? = nil
 
     public init(name: String = "", _ contents: any NBTEncodable & Sendable...) {
         self.name = name
@@ -18,30 +17,6 @@ public struct NBTCompound: NBTEncodable {
     public init(name: String, value: ValueType) {
         self.name = name
         self.value = value
-    }
-
-    public init(fromFile fileURL: URL) throws {
-        guard let nbtFileData = FileManager.default.contents(atPath: fileURL.path) else {
-            throw NBTError.BUFFER_DECODE(reason: .CORRUPT_FILE)
-        }
-
-        var buf = ByteBuffer(bytes: nbtFileData)
-
-        guard let fileVersion: UInt32 = buf.readInteger(endianness: .little) else {
-            throw NBTError.BUFFER_DECODE(reason: .CORRUPT_FILE)
-        }
-
-        print("FILE VERSION: \(fileVersion)")
-        
-        let bufExpectedLength: UInt32 = buf.readInteger(endianness: .little)!
-
-        guard buf.readableBytes == bufExpectedLength else {
-            throw NBTError.BUFFER_DECODE(reason: .CORRUPT_FILE)
-        }
-
-        try self.init(full: &buf, endianness: .little)
-
-        self.fileVersion = fileVersion
     }
 
     public init(body buf: inout ByteBuffer, endianness: Endianness) throws {
@@ -92,17 +67,7 @@ public struct NBTCompound: NBTEncodable {
             try item.encodeFull(&buf)
         }
 
-        buf.writeInteger(UInt8(0)) // "End tag", otherwise known as a null byte
-    }
-
-    public func encodeFile(_ outbuf: inout ByteBuffer) throws {
-        var buf = ByteBuffer()
-
-        try self.encodeFull(&buf)
-
-        outbuf.writeInteger(self.fileVersion ?? 10, endianness: .little)
-        outbuf.writeInteger(UInt32(buf.readableBytes), endianness: .little)
-        outbuf.writeBuffer(&buf)
+        buf.writeInteger(UInt8(0)) // "End tag", otherwise known as a null terminator
     }
 
     public mutating func addValues(_ vals: any NBTEncodable...) {
