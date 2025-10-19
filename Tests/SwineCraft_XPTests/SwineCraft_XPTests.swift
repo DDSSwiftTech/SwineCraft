@@ -81,7 +81,11 @@ import Testing
 @Test func NBTFileTest() async throws {
     let fileURL = URL(filePath: "/" + #filePath.split(separator: "/").dropLast().joined(separator: "/") + "/level.dat")
 
-    let nbtFileCompound = try NBTCompound(fromFile: fileURL)
+    let nbtFileCompound = try NBTFile(fromFile: fileURL)
+
+    for tag in nbtFileCompound.fileCompound.value {
+        print(tag)
+    }
 
     var encodedbuffer = ByteBuffer()
 
