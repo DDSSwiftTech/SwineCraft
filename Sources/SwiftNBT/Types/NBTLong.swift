@@ -1,10 +1,15 @@
 import NIOCore
 
-struct NBTLong: NBTEncodable {
-    typealias ValueType = Int64
+public struct NBTLong: NBTEncodable {
+    public typealias ValueType = Int64
 
-    let tagType: NBTTagType = .LONG
+    public let tagType: NBTTagType = .LONG
 
-    var name: String = ""
-    var value: ValueType
+    public var name: String = ""
+    public var value: ValueType
+
+    public init(name: String = "", value: ValueType) {
+        self.name = name
+        self.value = value
+    }
 }

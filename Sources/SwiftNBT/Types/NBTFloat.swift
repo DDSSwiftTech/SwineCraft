@@ -1,23 +1,23 @@
 import NIOCore
 
-struct NBTFloat: NBTEncodable {
-    typealias ValueType = Float
+public struct NBTFloat: NBTEncodable {
+    public typealias ValueType = Float
 
-    let tagType: NBTTagType = .FLOAT
+    public let tagType: NBTTagType = .FLOAT
 
-    var name: String = ""
-    var value: ValueType
+    public var name: String = ""
+    public var value: ValueType
 
-    init(name: String, value: Float) {
+    public init(name: String = "", value: ValueType) {
         self.name = name
         self.value = value
     }
 
-    init(body buf: inout NIOCore.ByteBuffer, endianness: Endianness) throws {
+    public init(body buf: inout NIOCore.ByteBuffer, endianness: Endianness) throws {
         self.value = Float(bitPattern: buf.readInteger(endianness: endianness)!)
     }
 
-    func encodeBody(_ buf: inout ByteBuffer) {
+    public func encodeBody(_ buf: inout ByteBuffer) {
         buf.writeInteger(self.value.bitPattern, endianness: .little)
     }
 }

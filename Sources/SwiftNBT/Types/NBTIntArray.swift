@@ -1,10 +1,15 @@
 import NIOCore
 
-struct NBTIntArray: NBTEncodable {
-    typealias ValueType = [Int32]
+public struct NBTIntArray: NBTEncodable {
+    public typealias ValueType = [Int32]
 
-    let tagType: NBTTagType = .INT_ARRAY
+    public let tagType: NBTTagType = .INT_ARRAY
 
-    var name: String
-    var value: [Int32]
+    public var name: String
+    public var value: [Int32]
+
+    public init(name: String = "", value: ValueType) {
+        self.name = name
+        self.value = value
+    }
 }

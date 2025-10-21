@@ -1,19 +1,19 @@
 import NIOCore
 
-struct NBTString: NBTEncodable {
-    typealias ValueType = String
+public struct NBTString: NBTEncodable {
+    public typealias ValueType = String
 
-    let tagType: NBTTagType = .STRING
+    public let tagType: NBTTagType = .STRING
 
-    var name: String = ""
-    var value: ValueType
+    public var name: String = ""
+    public var value: ValueType
 
-    init(name: String, value: String) {
+    public init(name: String = "", value: ValueType) {
         self.name = name
         self.value = value
     }
 
-    init(body buf: inout NIOCore.ByteBuffer, endianness: Endianness) throws {
+    public init(body buf: inout NIOCore.ByteBuffer, endianness: Endianness) throws {
         guard let stringLength: UInt16 = buf.readInteger(endianness: endianness),
         let decodedString = buf.readString(length: Int(stringLength)) else {
             throw NBTError.BUFFER_DECODE(reason: .STRING)
@@ -23,7 +23,7 @@ struct NBTString: NBTEncodable {
         self.value = decodedString
     }
 
-    func encodeBody(_ buf: inout NIOCore.ByteBuffer) {
+    public func encodeBody(_ buf: inout NIOCore.ByteBuffer) {
         buf.writeInteger(UInt16(self.value.utf8.count), endianness: .little)
         buf.writeString(self.value)
     }

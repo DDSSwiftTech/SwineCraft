@@ -1,6 +1,7 @@
 import NIO
 import SwakNet
 import SwiftSnappy
+import SwiftNBT
 import Foundation
 
 class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
@@ -104,6 +105,96 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 let data = self.compress(packet: packet, sourceAddress: sourceAddress)
 
                 context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
+
+                print(Config.shared)
+
+                // let startGamePacket = StartGamePacket(
+                //     playerEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
+                //     runtimeEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
+                //     playerGamemode: 0,
+                //     position: Vec3(x: 0, y: 0, z: 0),
+                //     rotation: Vec2(x: 0, y: 0),
+                //     settings: LevelSettings(
+                //         seed: UInt64,
+                //         spawnSettings: SpawnSettings(
+                //             type: MCPEShort,
+                //             userDefinedBiomeName: String,
+                //             dimension: VarInt
+                //         ),
+                //         generatorType: UnsignedVarInt,
+                //         gameType: VarInt,
+                //         hardcoreModeEnabled: Bool,
+                //         gameDifficulty: VarInt,
+                //         defaultSpawnBlockPosition: NetworkBlockPosition(x: 0, y: 0, z: 0),
+                //         achievementsDisabled: Bool,
+                //         editorWorldType: VarInt, createdInEditor: Bool,
+                //         exportedFromEditor: Bool,
+                //         dayCycleStopTime: VarInt,
+                //         educationEditionOffer: VarInt,
+                //         educationFeaturesEnabled: Bool,
+                //         educationProductId: String,
+                //         rainLevel: Float,
+                //         lightingLevel: Float,
+                //         confirmedPlatformLockedContent: Bool,
+                //         multiplayerIntendedToBeEnabled: Bool,
+                //         LANBroadcastingIntendedToBeEnabled: Bool,
+                //         xboxLiveBroadcastingSetting: VarInt,
+                //         platformBroadcastSetting: VarInt,
+                //         commandsEnabled: Bool,
+                //         texturePacksRequired: Bool,
+                //         ruleData: GamesRulesChangedPacketData(rulesList: []),
+                //         experiments: Experiments(experimentList: [], wereAnyExperimentsEverToggled: false),
+                //         bonusChestEnabled: Bool,
+                //         startWithMapEnabled: Bool,
+                //         playerPermissions: VarInt,
+                //         serverChunkTickRange: Int,
+                //         hasLockedBehaviorPack: Bool,
+                //         hasLockedResourcePack: Bool,
+                //         isFromLockedTemplate: Bool,
+                //         useMSAGamertagsOnly: Bool,
+                //         onlySpawnV1Villagers: Bool,
+                //         personaDisabled: Bool,
+                //         customSkinsDisabled: Bool,
+                //         emoteChatMuted: Bool,
+                //         baseGameVersion: String,
+                //         limitedWorldWidth: Int,
+                //         limitedWorldDepth: Int,
+                //         netherType: Bool,
+                //         eduSharedURIResource: EduSharedURIResource(buttonName: "Shared Resource", linkURI: "https://www.google.com/"),
+                //         chatRestrictionLevel: UInt8,
+                //         disablePlayerInteractions: Bool,
+                //         serverIdentifier: String,
+                //         worldIdentifier: String,
+                //         scenarioIdentifier: String,
+                //         ownerIdentifier: String
+                //     ),
+                //     levelID: String,
+                //     levelName: String,
+                //     templateContentIdentity: String,
+                //     isTrial: false,
+                //     movementSettings: SyncedPlayerMovementSettings(
+                //         rewindHistorySize: 0,
+                //         serverAuthoritativeBlockBreaking: true
+                //     ),
+                //     levelCurrentTime: 0,
+                //     enchantmentSeed: VarInt,
+                //     blockProperties: [],
+                //     multiplayerCorrelationID: String,
+                //     enableItemStackNetManager: Bool,
+                //     serverVersion: String,
+                //     playerPropertyData: NBTCompound,
+                //     serverBlockTypeRegistryChecksum: UInt64,
+                //     worldTemplateID: UUID,
+                //     serverEnabledClientSideGeneration: Bool,
+                //     blockTypesAreHashes: Bool,
+                //     networkPermissions: NetworkPermissions(
+                //         serverAuthSoundEnabled: true
+                //     )
+                // )
+
+                // let data = compress(packet: startGamePacket, sourceAddress: sourceAddress)
+
+                // context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
             case nil:
                 print("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 

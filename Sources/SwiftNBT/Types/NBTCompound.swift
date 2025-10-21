@@ -14,7 +14,7 @@ public struct NBTCompound: NBTEncodable {
         self.value += contents
     }
 
-    public init(name: String, value: ValueType) {
+    public init(name: String = "", value: ValueType) {
         self.name = name
         self.value = value
     }

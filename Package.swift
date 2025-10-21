@@ -11,7 +11,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio-extras.git", from: "1.29.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.13.0"),
         .package(url: "https://github.com/vapor/fluent-sqlite-driver.git", from: "4.0.0"),
-        .package(url: "https://github.com/jpsim/Yams.git", from: Version(6, 0, 0))
+        .package(url: "https://github.com/apple/swift-configuration.git", from: "0.1.1",
+            traits: [.defaults, "YAMLSupport"]
+        )
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -40,13 +42,19 @@ let package = Package(
                 .target(name: "SwiftZlib"),
                 .target(name: "SwiftSnappy"),
                 .target(name: "SwiftNBT"),
+                .product(name: "Configuration", package: "swift-configuration"),
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "NIOExtras", package: "swift-nio-extras"),
+            ], resources: [
+                .copy("Resources")
             ]),
         .testTarget(
             name: "SwineCraft_XPTests",
-            dependencies: [.target(name: "SwineCraft_XP")]
+            dependencies: [.target(name: "SwineCraft_XP")],
+            resources: [
+                .copy("Resources")
+            ]
         ),
     ]
 )

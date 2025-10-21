@@ -2,14 +2,14 @@ import NIOCore
 import Foundation
 
 
-struct NBTList: NBTEncodable {
-    typealias ValueType = [any NBTEncodable]
+public struct NBTList: NBTEncodable {
+    public typealias ValueType = [any NBTEncodable]
 
-    var tagType: NBTTagType { .LIST }
-    var value: ValueType = []
-    var name: String
+    public var tagType: NBTTagType { .LIST }
+    public var value: ValueType = []
+    public var name: String
 
-    init(name: String, value: [any NBTEncodable]) throws {
+    public init(name: String = "", value: [any NBTEncodable]) throws {
         self.name = name
 
         // check that they're all the same type if there's more than one element
@@ -27,7 +27,7 @@ struct NBTList: NBTEncodable {
         self.value = value
     }
 
-    init(body buf: inout ByteBuffer, endianness: Endianness) throws {
+    public init(body buf: inout ByteBuffer, endianness: Endianness) throws {
         self.name = ""
 
         guard let elemTagTypeRaw: UInt8 = buf.readInteger(),
@@ -77,7 +77,7 @@ struct NBTList: NBTEncodable {
     }
 
 
-    func encodeBody(_ buf: inout NIOCore.ByteBuffer) throws {
+    public func encodeBody(_ buf: inout NIOCore.ByteBuffer) throws {
         let elementTagType: NBTTagType = try {
             switch self.value {
                 case is [NBTByte]:

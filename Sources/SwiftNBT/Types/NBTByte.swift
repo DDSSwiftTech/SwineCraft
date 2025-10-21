@@ -1,10 +1,15 @@
 import NIOCore
 
-struct NBTByte: NBTEncodable {
-    typealias ValueType = Int8
+public struct NBTByte: NBTEncodable {
+    public typealias ValueType = Int8
 
-    let tagType: NBTTagType = .BYTE
+    public let tagType: NBTTagType = .BYTE
 
-    var name: String = ""
-    var value: ValueType
+    public var name: String = ""
+    public var value: ValueType
+
+    public init(name: String = "", value: ValueType) {
+        self.name = name
+        self.value = value
+    }
 }

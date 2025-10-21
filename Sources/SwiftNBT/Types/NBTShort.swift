@@ -1,10 +1,15 @@
 import NIOCore
 
-struct NBTShort: NBTEncodable {
-    typealias ValueType = Int16
+public struct NBTShort: NBTEncodable {
+    public typealias ValueType = Int16
 
-    let tagType: NBTTagType = .SHORT
+    public let tagType: NBTTagType = .SHORT
 
-    var name: String = ""
-    var value: ValueType
+    public var name: String = ""
+    public var value: ValueType
+
+    public init(name: String = "", value: ValueType) {
+        self.name = name
+        self.value = value
+    }
 }

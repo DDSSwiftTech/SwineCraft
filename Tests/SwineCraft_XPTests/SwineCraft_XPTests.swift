@@ -79,7 +79,7 @@ import Testing
 }
 
 @Test func NBTFileTest() async throws {
-    let fileURL = URL(filePath: "/" + #filePath.split(separator: "/").dropLast().joined(separator: "/") + "/level.dat")
+    let fileURL = Bundle.module.url(forResource: "level", withExtension: "dat")!
 
     let nbtFileCompound = try NBTFile(fromFile: fileURL)
 
@@ -92,4 +92,10 @@ import Testing
     try nbtFileCompound.encodeFile(&encodedbuffer)
 
     #expect(ByteBuffer(bytes: try Data(contentsOf: fileURL)) == encodedbuffer)
+}
+
+@Test func ConfigTest() async throws {
+    let config = try Config(fromPath: Bundle.module.url(forResource: "config", withExtension: "yaml")!.path)
+    
+    print(config)
 }

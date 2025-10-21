@@ -40,7 +40,7 @@ extension NBTEncodable {
 }
 
 extension NBTEncodable where ValueType: RangeReplaceableCollection, ValueType.Element: FixedWidthInteger {
-    func encodeBody(_ buf: inout ByteBuffer) throws {
+    public func encodeBody(_ buf: inout ByteBuffer) throws {
         buf.writeInteger(UInt32(self.value.count), endianness: .little)
         
         for item in value {
@@ -48,7 +48,7 @@ extension NBTEncodable where ValueType: RangeReplaceableCollection, ValueType.El
         }
     }
 
-    init(body buf: inout ByteBuffer, endianness: Endianness) throws {
+    public init(body buf: inout ByteBuffer, endianness: Endianness) throws {
         guard let count: UInt32 = buf.readInteger(endianness: endianness) else {
             throw NBTError.BUFFER_DECODE(reason: .ARRAY_COUNT)
         }
@@ -113,11 +113,11 @@ extension NBTEncodable where ValueType: Equatable {
 }
 
 extension NBTEncodable where ValueType: FixedWidthInteger {
-    func encodeBody(_ buf: inout ByteBuffer) throws {
+    public func encodeBody(_ buf: inout ByteBuffer) throws {
         buf.writeInteger(self.value, endianness: .little)
     }
 
-    init(body buf: inout ByteBuffer, endianness: Endianness) throws {
+    public init(body buf: inout ByteBuffer, endianness: Endianness) throws {
         try self.init(name: "", value: buf.readInteger(endianness: endianness)!)
     }
 }
