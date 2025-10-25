@@ -10,7 +10,7 @@ public struct NBTCompound: NBTEncodable {
     public var value: ValueType = []
 
     public subscript(_ index: String) -> (any NBTEncodable)? {
-        return self.value.first {$0.name == "Difficulty"}
+        return self.value.first {$0.name == index}
     }
 
     public init(name: String = "", _ contents: any NBTEncodable & Sendable...) {
