@@ -68,12 +68,12 @@ import Testing
         NBTLongArray(name: "TestLA", value: [1, 2, 3, 4]),
         NBTShort(name: "TestSI", value: 4041),
         NBTString(name: "TestS", value: "hello world"),
-        try NBTList(name: "TestLIST", value: [NBTShort(value: 6), NBTShort(value: 11)])
+        try NBTList(name: "TestLIST", value: [6 as NBTShort, 11 as NBTShort])
     )
 
     #expect(compound != unequalCompound)
 
-    let invalidList = try? NBTList(name: "TestInvalidLIST", value: [NBTByte(name: "", value: 1), NBTShort(name: "", value: 1)])
+    let invalidList = try? NBTList(name: "TestInvalidLIST", value: [1 as NBTByte, 1 as NBTShort])
 
     #expect(invalidList == nil, "This should throw, but we're making it nil for testing")
 }
@@ -81,21 +81,23 @@ import Testing
 @Test func NBTFileTest() async throws {
     let fileURL = Bundle.module.url(forResource: "level", withExtension: "dat")!
 
-    let nbtFileCompound = try NBTFile(fromFile: fileURL)
-
-    for tag in nbtFileCompound.fileCompound.value {
-        print(tag)
-    }
+    let nbtFile = try NBTFile(fromFile: fileURL)
 
     var encodedbuffer = ByteBuffer()
 
-    try nbtFileCompound.encodeFile(&encodedbuffer)
+    try nbtFile.encode(&encodedbuffer)
 
     #expect(ByteBuffer(bytes: try Data(contentsOf: fileURL)) == encodedbuffer)
 }
 
 @Test func ConfigTest() async throws {
     let config = try Config(fromPath: Bundle.module.url(forResource: "config", withExtension: "yaml")!.path)
+
+    let validWorldFolder: String = config["worldFolder", default: "worlds"]
     
-    print(config)
+    #expect(validWorldFolder == "worldsValid") // pulling from config file
+
+    let invalidWorldFolder: String = config["worldFolderINVALID", default: "worldsINVALID"]
+    
+    #expect(invalidWorldFolder == "worldsINVALID") // pulling from default
 }

@@ -1,12 +1,16 @@
 import NIOCore
 
-public struct NBTString: NBTEncodable {
+public struct NBTString: NBTEncodable, ExpressibleByStringLiteral {
     public typealias ValueType = String
 
     public let tagType: NBTTagType = .STRING
 
     public var name: String = ""
     public var value: ValueType
+
+    public init(stringLiteral value: StringLiteralType) {
+        self.value = value
+    }
 
     public init(name: String = "", value: ValueType) {
         self.name = name

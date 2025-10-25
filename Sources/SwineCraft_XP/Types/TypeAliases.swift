@@ -1,8 +1,8 @@
-typealias MCPEByte    = UInt8
-typealias MCPEBool    = Bool
-typealias MCPEShort   = Int16
-typealias MCPEUShort  = UInt16
-typealias MCPEInt     = Int32
-typealias MCPEUInt    = UInt32
-typealias MCPELong    = Int64
-typealias ULong       = UInt64
+public typealias MCPEByte    = UInt8
+public typealias MCPEBool    = Bool
+public typealias MCPEShort   = Int16
+public typealias MCPEUShort  = UInt16
+public typealias MCPEInt     = Int32
+public typealias MCPEUInt    = UInt32
+public typealias MCPELong    = Int64
+public typealias ULong       = UInt64

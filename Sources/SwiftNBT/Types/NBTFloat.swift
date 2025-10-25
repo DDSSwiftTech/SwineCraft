@@ -1,12 +1,17 @@
 import NIOCore
 
-public struct NBTFloat: NBTEncodable {
+public struct NBTFloat: NBTEncodable, ExpressibleByFloatLiteral {
+    public typealias FloatLiteralType = Float
     public typealias ValueType = Float
 
     public let tagType: NBTTagType = .FLOAT
 
     public var name: String = ""
     public var value: ValueType
+
+    public init(floatLiteral value: FloatLiteralType) {
+        self.value = value
+    }
 
     public init(name: String = "", value: ValueType) {
         self.name = name

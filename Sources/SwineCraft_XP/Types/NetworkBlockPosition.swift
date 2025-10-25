@@ -1,5 +1,5 @@
-struct NetworkBlockPosition {
-    let x: VarInt
-    let y: UnsignedVarInt
-    let z: VarInt
+public struct NetworkBlockPosition {
+    public let x: VarInt
+    public let y: UnsignedVarInt
+    public let z: VarInt
 }

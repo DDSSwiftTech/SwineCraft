@@ -2,12 +2,17 @@ import NIOCore
 import Foundation
 
 
-public struct NBTList: NBTEncodable {
+public struct NBTList: NBTEncodable, ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = any NBTEncodable
     public typealias ValueType = [any NBTEncodable]
 
     public var tagType: NBTTagType { .LIST }
     public var value: ValueType = []
-    public var name: String
+    public var name: String = ""
+
+    public init(arrayLiteral elements: any NBTEncodable...) {
+        self.value = elements
+    }
 
     public init(name: String = "", value: [any NBTEncodable]) throws {
         self.name = name

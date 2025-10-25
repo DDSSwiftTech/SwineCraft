@@ -28,4 +28,8 @@ struct StartGamePacket: MCPEPacket {
     let serverEnabledClientSideGeneration: Bool
     let blockTypesAreHashes: Bool
     let networkPermissions: NetworkPermissions
+
+    // func encode() throws -> ByteBuffer {
+
+    // }
 }

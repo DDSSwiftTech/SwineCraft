@@ -1,15 +1,15 @@
 import NIOCore
 
-struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
-    typealias IntegerLiteralType = UInt32
+public struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
+    public typealias IntegerLiteralType = UInt32
 
     var backingInt: UInt32 = 0
 
-    init(integerLiteral value: IntegerLiteralType) {
+    public init(integerLiteral value: IntegerLiteralType) {
         self.backingInt = value
     }
 
-    init(buffer: inout ByteBuffer) {
+    public init(buffer: inout ByteBuffer) {
         var result: UInt32 = 0
         var idx: UInt32 = 0
 
@@ -26,7 +26,7 @@ struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
         self.backingInt = result
     }
 
-    func encode() -> ByteBuffer {
+    public func encode() -> ByteBuffer {
         guard self.backingInt != 0 else {
             return ByteBuffer(integer: UInt8(0))
         }
@@ -56,7 +56,7 @@ struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
 }
 
 extension ByteBuffer {
-    mutating func readUnsignedVarInt() -> UnsignedVarInt {
+    public mutating func readUnsignedVarInt() -> UnsignedVarInt {
         return UnsignedVarInt(buffer: &self)
     }
 }

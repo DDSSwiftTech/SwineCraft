@@ -1,9 +1,9 @@
-struct Experiments {
-    struct Experiment {
-        let name: String
-        let enabled: Bool
+public struct Experiments {
+    public struct Experiment {
+        public let name: String
+        public let enabled: Bool
     }
 
-    let experimentList: [Experiment]
-    let wereAnyExperimentsEverToggled: Bool
+    public let experimentList: [Experiment]
+    public let wereAnyExperimentsEverToggled: Bool
 }

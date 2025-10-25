@@ -3,11 +3,15 @@ import Foundation
 
 public struct NBTCompound: NBTEncodable {
     public typealias ValueType = [any NBTEncodable]
-    
+
     public let tagType: NBTTagType = .COMPOUND
-    
+
     public var name: String
     public var value: ValueType = []
+
+    public subscript(_ index: String) -> (any NBTEncodable)? {
+        return self.value.first {$0.name == "Difficulty"}
+    }
 
     public init(name: String = "", _ contents: any NBTEncodable & Sendable...) {
         self.name = name
@@ -21,7 +25,7 @@ public struct NBTCompound: NBTEncodable {
 
     public init(body buf: inout ByteBuffer, endianness: Endianness) throws {
         self.name = ""
-        
+
         while let tagTypeInt: UInt8 = buf.peekInteger(),
         let tagType = NBTTagType(rawValue: tagTypeInt) {
             var endLoop = false

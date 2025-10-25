@@ -35,7 +35,8 @@ let package = Package(
         .target(name: "SwakNet",
             dependencies: [
                 .product(name: "NIO", package: "swift-nio")
-        ]),
+            ]
+        ),
         .executableTarget(
             name: "SwineCraft_XP", dependencies: [
                 .target(name: "SwakNet"),
@@ -48,7 +49,13 @@ let package = Package(
                 .product(name: "NIOExtras", package: "swift-nio-extras"),
             ], resources: [
                 .copy("Resources")
-            ]),
+            ]
+        ),
+        .executableTarget(name: "nbtdump",
+            dependencies: [
+                .target(name: "SwiftNBT")
+            ]
+        ),
         .testTarget(
             name: "SwineCraft_XPTests",
             dependencies: [.target(name: "SwineCraft_XP")],

@@ -1,7 +1,7 @@
 import Foundation
 import NIOCore
 
-struct NBTFile {
+public struct NBTFile {
     public let fileCompound: NBTCompound
     private var fileVersion: UInt32
 
@@ -37,7 +37,7 @@ struct NBTFile {
         self.fileVersion = fileVersion
     }
 
-    public func encodeFile(_ outbuf: inout ByteBuffer) throws {
+    public func encode(_ outbuf: inout ByteBuffer) throws {
         var buf = ByteBuffer()
 
         try self.fileCompound.encodeFull(&buf)

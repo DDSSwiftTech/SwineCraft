@@ -1,3 +1,3 @@
-struct GamesRulesChangedPacketData {
-    let rulesList: [GameRule]
+public struct GamesRulesChangedPacketData {
+    public let rulesList: [GameRule]
 }

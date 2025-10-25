@@ -7,11 +7,6 @@ struct Config: Codable {
     public var worldFolder: String?
     public var playerFolder: String?
 
-    enum ConfigCodingKey: CodingKey {
-        case worldFolder
-        case playerFolder
-    }
-    
     init(fromPath path: String) throws {
         var isDir: Bool = false
 
@@ -29,11 +24,9 @@ struct Config: Codable {
         self = try YAMLDecoder().decode(Self.self, from: Data(contentsOf: URL(filePath: path)))
     }
 
-    // we'll encode defaults in here to make it seamless
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: ConfigCodingKey.self)
+    subscript<T>(_ key: String, default defaultValue: @autoclosure () -> T) -> T {
+        let mirror = Mirror(reflecting: self)
 
-        self.worldFolder = (try? container.decode(String.self, forKey: .worldFolder)) ?? "worlds"
-        self.playerFolder = (try? container.decode(String.self, forKey: .playerFolder)) ?? "players"
+        return (mirror.children.first {$0.label == key})?.value as! T? ?? defaultValue()
     }
 }

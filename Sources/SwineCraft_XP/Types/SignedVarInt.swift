@@ -1,15 +1,15 @@
 import NIOCore
 
-struct VarInt: ExpressibleByIntegerLiteral {
-    typealias IntegerLiteralType = Int32
+public struct VarInt: ExpressibleByIntegerLiteral {
+    public typealias IntegerLiteralType = Int32
 
     var backingInt: Int32 = 0
 
-    init(integerLiteral value: IntegerLiteralType) {
+    public init(integerLiteral value: IntegerLiteralType) {
         self.backingInt = value
     }
 
-    init(buffer: inout ByteBuffer) {
+    public init(buffer: inout ByteBuffer) {
         var result: Int32 = 0
         var idx: Int32 = 0
 
@@ -29,7 +29,7 @@ struct VarInt: ExpressibleByIntegerLiteral {
     /// 
     /// Encode SignedVarInt into ByteBuffer
     /// - Returns: ByteBuffer
-    func encode() -> ByteBuffer {
+    public func encode() -> ByteBuffer {
         guard self.backingInt != 0 else {
             return ByteBuffer(integer: UInt8(0))
         }
@@ -59,7 +59,7 @@ struct VarInt: ExpressibleByIntegerLiteral {
 }
 
 extension ByteBuffer {
-    mutating func readVarInt() -> VarInt {
+    public mutating func readVarInt() -> VarInt {
         return VarInt(buffer: &self)
     }
 }
