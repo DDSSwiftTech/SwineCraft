@@ -58,7 +58,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                     await RakNetStateHandler.shared.initializeState(clientTime: 0, connectionID: RakNetAddress(from: inboundEnvelope.remoteAddress)!)
                     await RakNetStateHandler.shared.setConnectionMTU(connectionID: RakNetAddress(from: inboundEnvelope.remoteAddress)!, mtu: packet.mtu)
                 }.whenComplete { _ in
-                    let responsePacket = OfflineConnectionResponse1(magic: packet.magic, serverHasSecurity: false, mtu: packet.mtu)
+                    let responsePacket = OfflineConnectionResponse1(magic: packet.magic, serverHasSecurity: false, mtuSize: packet.mtu)
                     context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! responsePacket.encode())), promise: nil)
                 }                    
             case .OFFLINE_CONNECTION_REQUEST_2:
