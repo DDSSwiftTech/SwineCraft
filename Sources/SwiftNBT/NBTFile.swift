@@ -42,7 +42,7 @@ public struct NBTFile {
 
         try self.fileCompound.encodeFull(&buf)
 
-        outbuf.writeInteger(self.fileVersion ?? 10, endianness: .little)
+        outbuf.writeInteger(self.fileVersion, endianness: .little)
         outbuf.writeInteger(UInt32(buf.readableBytes), endianness: .little)
         outbuf.writeBuffer(&buf)
     }
