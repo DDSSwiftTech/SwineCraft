@@ -92,7 +92,7 @@ public struct LevelSettings {
         let experiments = compound["experiments"] as! NBTCompound
 
         self.experiments = Experiments(experimentList: experiments.value.filter {$0.name != "saved_with_toggled_experiments"}.map {
-            Experiments.Experiment(name: $0.name, enabled: ($0.value as! NBTByte) == 1)
+            Experiments.Experiment(name: $0.name, enabled: ($0 as! NBTByte) == 1)
         }, wereAnyExperimentsEverToggled: (experiments["saved_with_toggled_experiments"] as! NBTByte) == 1)
         self.bonusChestEnabled = (compound["bonusChestEnabled"] as! NBTByte) == 1
         self.startWithMapEnabled = (compound["startWithMapEnabled"] as! NBTByte) == 1

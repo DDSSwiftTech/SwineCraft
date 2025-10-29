@@ -1,8 +1,10 @@
 import Foundation
 import Yams
+import Logging
 
 struct Config: Codable {
     static let shared = try! Config(fromPath: FileManager.default.homeDirectoryForCurrentUser.path + "/.config/swinecraft/config.yaml")
+    static let logger = Logger(autoLogLevelWithLabel: "Config")
 
     public var worldFolder: String?
     public var playerFolder: String?
@@ -14,7 +16,7 @@ struct Config: Codable {
         let configDirectory = pathURL.deletingLastPathComponent().path
 
         if !FileManager.default.fileExists(atPath: configDirectory, isDirectory: &isDir) || !isDir {
-            print("CREATING CONFIG DIR")
+            Self.logger.info("CREATING CONFIG DIR")
             if !isDir {
                 try FileManager.default.removeItem(atPath: configDirectory)
             }

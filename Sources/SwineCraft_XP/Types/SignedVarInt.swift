@@ -29,12 +29,12 @@ public struct VarInt: ExpressibleByIntegerLiteral {
     /// 
     /// Encode SignedVarInt into ByteBuffer
     /// - Returns: ByteBuffer
-    public func encode() -> ByteBuffer {
+    func encode(_ buf: inout NIOCore.ByteBuffer) throws {
         guard self.backingInt != 0 else {
-            return ByteBuffer(integer: UInt8(0))
-        }
+            buf.writeInteger(self.backingInt)
 
-        var buffer = ByteBuffer()
+            return
+        }
 
         // Split backing int into groups of 7 bits
 
@@ -51,10 +51,8 @@ public struct VarInt: ExpressibleByIntegerLiteral {
         }
 
         for idx in 0..<intPieces.count {
-            buffer.writeInteger(intPieces[idx] | (idx < intPieces.count - 1 ? 0x80 : 0))
+            buf.writeInteger(intPieces[idx] | (idx < intPieces.count - 1 ? 0x80 : 0))
         }
-
-        return buffer
     }
 }
 

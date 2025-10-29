@@ -3,6 +3,7 @@ import SwakNet
 import SwiftSnappy
 import SwiftNBT
 import Foundation
+import Logging
 
 class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
     typealias InboundIn = AddressedEnvelope<ByteBuffer>
@@ -20,6 +21,8 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
         .None: NoneDecompressor()
     ]
 
+    private let logger = Logger(autoLogLevelWithLabel: "MCPEHandler")
+
     func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
         let event = event as! RakNetEvent
 
@@ -27,11 +30,11 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
             case .DISCONNECTED(let source, let reason):
                 self.stateHandler.discardState(source: source)
 
-                print("Disconnected: \(reason)")
+                logger.info("Disconnected: \(reason)")
         }
     }
 
-    func errorCaught(context: ChannelHandlerContext, error: any Error) {print(error)}
+    func errorCaught(context: ChannelHandlerContext, error: any Error) {logger.error("\(error)")}
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let inboundEnvelope = self.unwrapInboundIn(data)
@@ -42,7 +45,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
         if self.stateHandler.getCompressionMethod(forSource: sourceAddress) != nil { // compression has been negotiated
             guard let compressionMethod = CompressionMethod(rawValue: Int16(buffer.readInteger()! as Int8)) else {
-                print("bad compression method")
+                logger.error("bad compression method")
 
                 return
             }
@@ -67,6 +70,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 self.stateHandler.initializeState(source: sourceAddress, version: packet.protocolVersion)
 
                 let responsePacket = NetworkSettingsPacket(
+                    compressEverything: true,
                     compressionThreshold: 256,
                     compressionMethod: .DEFLATE,
                     clientThrottleEnabled: false,
@@ -75,24 +79,35 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 )
 
                 self.stateHandler.setCompressionMethod(.DEFLATE, forSource: sourceAddress)
+                
+                var packetBuf = ByteBuffer()
+                try? responsePacket.encode(&packetBuf)
 
-                let data = try! responsePacket.encode()
+                var resultBuf = ByteBufferAllocator().buffer(capacity: 5)
 
-                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: ByteBuffer([0xfe] + VarInt(integerLiteral: Int32(data.readableBytes)).encode().readableBytesView + data.readableBytesView))), promise: nil)
+                resultBuf.writeBytes([0xFE])
+                try? VarInt(integerLiteral: Int32(packetBuf.readableBytes)).encode(&resultBuf)
+                resultBuf.writeBuffer(&packetBuf)
+
+                ("SENDING NETWORK SETTINGS")
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: resultBuf)), promise: nil)
             case .LOGIN:
                 guard let packet = try? LoginPacket(from: &buffer) else {
                     return
                 }
 
-                print("RECEIVED LOGIN PACKET")
+                ("RECEIVED LOGIN PACKET")
 
                 self.stateHandler.setLoginPacket(packet, forSource: sourceAddress)
 
                 let responsePacket = PlayStatusPacket(status: .LOGIN_SUCCESS)
-                
-                let data = self.compress(packet: responsePacket, sourceAddress: sourceAddress)
 
-                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
+                var dataBuf = ByteBuffer()
+                
+                self.compress(packet: responsePacket, sourceAddress: sourceAddress, toBuffer: &dataBuf)
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: dataBuf)), promise: nil)
             case .CLIENT_CACHE_STATUS:
                 guard let packet = try? ClientCacheStatusPacket(from: &buffer) else {
                     return
@@ -100,78 +115,90 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 self.stateHandler.setClientCacheSupported(packet.cachingStatus, forSource: sourceAddress)
 
-                print("RECEIVED CLIENT CACHE STATUS")
+                self.logger.debug("RECEIVED CLIENT CACHE STATUS")
 
-                let data = self.compress(packet: packet, sourceAddress: sourceAddress)
+                var data = ByteBuffer()
+
+                self.compress(packet: packet, sourceAddress: sourceAddress, toBuffer: &data)
 
                 context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
 
-                print(Config.shared["worldFolder", default: "worlds"] as String?)
+                // let startGamePacket = StartGamePacket(
+                //     playerEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
+                //     runtimeEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
+                //     playerGamemode: 0,
+                //     position: Vec3(x: 0, y: 0, z: 0),
+                //     rotation: Vec2(x: 0, y: 0),
+                //     settings: LevelSettings(try! NBTFile(fromFile: URL(string: "/home/david/swift_projects/SwineCraft_XP/Tests/SwineCraft_XPTests/Resources/level.dat")!).fileCompound) ,
+                //     levelID: "300",
+                //     levelName: "Default World",
+                //     templateContentIdentity: "None",
+                //     isTrial: false,
+                //     movementSettings: SyncedPlayerMovementSettings(
+                //         rewindHistorySize: 0,
+                //         serverAuthoritativeBlockBreaking: true
+                //     ),
+                //     levelCurrentTime: 0,
+                //     enchantmentSeed: VarInt(integerLiteral: .random(in: Int32.min..<Int32.max)),
+                //     blockProperties: [],
+                //     multiplayerCorrelationID: "\(UInt64.random(in: UInt64.min..<UInt64.max))",
+                //     enableItemStackNetManager: true,
+                //     serverVersion: "\(RakNetProtocolInfo.VERSION)",
+                //     playerPropertyData: NBTCompound(),
+                //     serverBlockTypeRegistryChecksum: UInt64.random(in: UInt64.min..<UInt64.max),
+                //     worldTemplateID: UUID(),
+                //     serverEnabledClientSideGeneration: false,
+                //     blockTypesAreHashes: false,
+                //     networkPermissions: NetworkPermissions(
+                //         serverAuthSoundEnabled: true
+                //     )
+                // )
 
-                let startGamePacket = StartGamePacket(
-                    playerEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
-                    runtimeEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
-                    playerGamemode: 0,
-                    position: Vec3(x: 0, y: 0, z: 0),
-                    rotation: Vec2(x: 0, y: 0),
-                    settings: LevelSettings(try! NBTFile(fromFile: URL(string: "")!).fileCompound) ,
-                    levelID: "300",
-                    levelName: "Default World",
-                    templateContentIdentity: "None",
-                    isTrial: false,
-                    movementSettings: SyncedPlayerMovementSettings(
-                        rewindHistorySize: 0,
-                        serverAuthoritativeBlockBreaking: true
-                    ),
-                    levelCurrentTime: 0,
-                    enchantmentSeed: VarInt(integerLiteral: .random(in: Int32.min..<Int32.max)),
-                    blockProperties: [],
-                    multiplayerCorrelationID: "\(UInt64.random(in: UInt64.min..<UInt64.max))",
-                    enableItemStackNetManager: true,
-                    serverVersion: "\(RakNetProtocolInfo.VERSION)",
-                    playerPropertyData: NBTCompound(),
-                    serverBlockTypeRegistryChecksum: UInt64.random(in: UInt64.min..<UInt64.max),
-                    worldTemplateID: UUID(),
-                    serverEnabledClientSideGeneration: false,
-                    blockTypesAreHashes: false,
-                    networkPermissions: NetworkPermissions(
-                        serverAuthSoundEnabled: true
-                    )
-                )
+                let resourcePackInfos = ResourcePacksInfoPacket()
 
-                let startGameData = compress(packet: startGamePacket, sourceAddress: sourceAddress)
+                var resourcePackInfosBuf = ByteBuffer()
 
-                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: startGameData)), promise: nil)
+                compress(packet: resourcePackInfos, sourceAddress: sourceAddress, toBuffer: &resourcePackInfosBuf)
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: resourcePackInfosBuf)), promise: nil)
+            case .RESOURCE_PACK_CLIENT_RESPONSE:
+                guard let packet = try? ResourcePackClientResponsePacket(from: &buffer) else {
+                    return
+                }
+
+                logger.debug("RECEIVED PACKET \(packet)")
             case nil:
-                print("UNKNOWN PACKET TYPE \(old_buffer)")
+                self.logger.error("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 
-                print("UNIMEPLEMENTED PACKET TYPE \(old_buffer)")
+                self.logger.error("UNIMEPLEMENTED PACKET TYPE \(old_buffer)")
         }
     }
 
-    func compress(packet: MCPEPacket, sourceAddress: RakNetAddress) -> ByteBuffer {
-        var basebuf = ByteBuffer([0xFE])
-        var packetBuf = try! packet.encode()
-        var packetbufWithLength = VarInt(integerLiteral: Int32(packetBuf.readableBytes)).encode()
-        packetbufWithLength.writeBuffer(&packetBuf)
+    func compress(packet: MCPEPacket, sourceAddress: RakNetAddress, toBuffer buf: inout ByteBuffer) {
+        buf.writeBytes([0xFE])
+        
+        var packetBuf = ByteBuffer()
+        try? packet.encode(&packetBuf)
+
+        var packetBufWithLength = ByteBuffer()
+        try? VarInt(integerLiteral: Int32(packetBuf.readableBytes)).encode(&packetBufWithLength)
+        packetBufWithLength.writeBuffer(&packetBuf)
 
         if var method = self.stateHandler.getCompressionMethod(forSource: sourceAddress) {
             var compressor = self.registeredCompressors[method]!
 
-            if packetbufWithLength.readableBytes < compressor.compressionThreshold {
+            if packetBufWithLength.readableBytes < compressor.compressionThreshold {
                 method = .None // never compress if below threshold
                 compressor = self.registeredCompressors[.None]!
             }
 
-            print("COMPRESSING WITH \(method)")
+            logger.debug("COMPRESSING PACKET \(packet) WITH \(method)")
 
-            basebuf.writeBytes([UInt8(method.rawValue & 0xFF)])
+            buf.writeBytes([UInt8(method.rawValue & 0xFF)])
 
-            var compressedBuf = compressor.compress(&packetbufWithLength)
+            var compressedBuf = compressor.compress(&packetBufWithLength)
 
-            basebuf.writeBuffer(&compressedBuf)
+            buf.writeBuffer(&compressedBuf)
         }
-
-        return basebuf
     }
 }

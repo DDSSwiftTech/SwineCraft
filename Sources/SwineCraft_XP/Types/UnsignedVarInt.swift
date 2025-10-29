@@ -1,6 +1,6 @@
 import NIOCore
 
-public struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
+public struct UnsignedVarInt: ExpressibleByIntegerLiteral, MCPEPacketEncodable {
     public typealias IntegerLiteralType = UInt32
 
     var backingInt: UInt32 = 0
@@ -26,13 +26,13 @@ public struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
         self.backingInt = result
     }
 
-    public func encode() -> ByteBuffer {
+    func encode(_ buf: inout NIOCore.ByteBuffer) throws {
         guard self.backingInt != 0 else {
-            return ByteBuffer(integer: UInt8(0))
+            buf.writeInteger(self.backingInt)
+
+            return
         }
-
-        var buffer = ByteBuffer()
-
+        
         // Split backing int into groups of 7 bits
 
         var intPieces = [
@@ -48,10 +48,8 @@ public struct UnsignedVarInt: ExpressibleByIntegerLiteral, Codable {
         }
 
         for idx in 0..<intPieces.count {
-            buffer.writeInteger(intPieces[idx] | (idx < intPieces.count - 1 ? 0x80 : 0))
+            buf.writeInteger(intPieces[idx] | (idx < intPieces.count - 1 ? 0x80 : 0))
         }
-
-        return buffer
     }
 }
 

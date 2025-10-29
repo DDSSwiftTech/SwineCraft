@@ -19,13 +19,4 @@ struct PlayStatusPacket: MCPEPacket {
     init(status: MCPEStatus) {
         self.status = status
     }
-
-    func encode() throws -> ByteBuffer {
-        var buffer = ByteBuffer()
-
-        buffer.writeInteger(self.packetType.rawValue)
-        buffer.writeInteger(self.status.rawValue)
-        
-        return buffer
-    }
 }

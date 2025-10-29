@@ -29,7 +29,10 @@ struct StartGamePacket: MCPEPacket {
     let blockTypesAreHashes: Bool
     let networkPermissions: NetworkPermissions
 
-    // func encode() throws -> ByteBuffer {
-
-    // }
+    func encode(_ buf: inout ByteBuffer) throws {
+        buf.writeInteger(self.packetType.rawValue)
+        buf.writeInteger(self.playerEntityID.backingInt)
+        buf.writeInteger(self.runtimeEntityID.backingInt)
+        buf.writeInteger(self.playerGamemode.backingInt)
+    }
 }
