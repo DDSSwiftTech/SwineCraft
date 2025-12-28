@@ -31,7 +31,7 @@ public struct VarInt: ExpressibleByIntegerLiteral {
     /// - Returns: ByteBuffer
     func encode(_ buf: inout NIOCore.ByteBuffer) throws {
         guard self.backingInt != 0 else {
-            buf.writeInteger(self.backingInt)
+            buf.writeInteger(UInt8(self.backingInt))
 
             return
         }

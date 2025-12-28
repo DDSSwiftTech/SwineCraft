@@ -1,9 +1,9 @@
 import SwiftNBT
 
-public struct LevelSettings {
+public struct LevelSettings: MCPEPacketEncodable {
     public let seed: UInt64
     public let spawnSettings: SpawnSettings
-    public let generatorType: UnsignedVarInt
+    public let generatorType: VarInt
     public let gameType: VarInt
     public let hardcoreModeEnabled: Bool
     public let gameDifficulty: VarInt
@@ -61,8 +61,8 @@ public struct LevelSettings {
             userDefinedBiomeName: (compound["BiomeOverride"] as! NBTString).value,
             dimension: 0
         )
-        self.generatorType = UnsignedVarInt(integerLiteral: UInt32((compound["Generator"] as! NBTInt).value))
-        self.gameType = VarInt(integerLiteral: (Int32((compound["GameType"] as! NBTInt).value)))
+        self.generatorType = VarInt(integerLiteral: (compound["Generator"] as! NBTInt).value)
+        self.gameType = VarInt(integerLiteral: (compound["GameType"] as! NBTInt).value)
         self.hardcoreModeEnabled = (compound["IsHardcore"] as! NBTByte) == 1
         self.gameDifficulty = VarInt(integerLiteral: (compound["Difficulty"] as! NBTInt).value)
         self.defaultSpawnBlockPosition = NetworkBlockPosition(

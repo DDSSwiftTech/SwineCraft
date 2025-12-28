@@ -27,8 +27,6 @@ struct Config: Codable {
     }
 
     subscript<T>(_ key: String, default defaultValue: @autoclosure () -> T) -> T {
-        let mirror = Mirror(reflecting: self)
-
-        return (mirror.children.first {$0.label == key})?.value as! T? ?? defaultValue()
+        return (Mirror(reflecting: self).children.first {$0.label == key})?.value as! T? ?? defaultValue()
     }
 }

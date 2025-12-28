@@ -89,7 +89,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                 try? VarInt(integerLiteral: Int32(packetBuf.readableBytes)).encode(&resultBuf)
                 resultBuf.writeBuffer(&packetBuf)
 
-                ("SENDING NETWORK SETTINGS")
+                logger.debug("SENDING NETWORK SETTINGS")
 
                 context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: resultBuf)), promise: nil)
             case .LOGIN:
@@ -97,7 +97,7 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                     return
                 }
 
-                ("RECEIVED LOGIN PACKET")
+                logger.debug("RECEIVED LOGIN PACKET")
 
                 self.stateHandler.setLoginPacket(packet, forSource: sourceAddress)
 
@@ -123,37 +123,6 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
 
                 context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: data)), promise: nil)
 
-                // let startGamePacket = StartGamePacket(
-                //     playerEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
-                //     runtimeEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
-                //     playerGamemode: 0,
-                //     position: Vec3(x: 0, y: 0, z: 0),
-                //     rotation: Vec2(x: 0, y: 0),
-                //     settings: LevelSettings(try! NBTFile(fromFile: URL(string: "/home/david/swift_projects/SwineCraft_XP/Tests/SwineCraft_XPTests/Resources/level.dat")!).fileCompound) ,
-                //     levelID: "300",
-                //     levelName: "Default World",
-                //     templateContentIdentity: "None",
-                //     isTrial: false,
-                //     movementSettings: SyncedPlayerMovementSettings(
-                //         rewindHistorySize: 0,
-                //         serverAuthoritativeBlockBreaking: true
-                //     ),
-                //     levelCurrentTime: 0,
-                //     enchantmentSeed: VarInt(integerLiteral: .random(in: Int32.min..<Int32.max)),
-                //     blockProperties: [],
-                //     multiplayerCorrelationID: "\(UInt64.random(in: UInt64.min..<UInt64.max))",
-                //     enableItemStackNetManager: true,
-                //     serverVersion: "\(RakNetProtocolInfo.VERSION)",
-                //     playerPropertyData: NBTCompound(),
-                //     serverBlockTypeRegistryChecksum: UInt64.random(in: UInt64.min..<UInt64.max),
-                //     worldTemplateID: UUID(),
-                //     serverEnabledClientSideGeneration: false,
-                //     blockTypesAreHashes: false,
-                //     networkPermissions: NetworkPermissions(
-                //         serverAuthSoundEnabled: true
-                //     )
-                // )
-
                 let resourcePackInfos = ResourcePacksInfoPacket()
 
                 var resourcePackInfosBuf = ByteBuffer()
@@ -166,7 +135,71 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
                     return
                 }
 
-                logger.debug("RECEIVED PACKET \(packet)")
+                let startGamePacket = StartGamePacket(
+                    playerEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
+                    runtimeEntityID: .init(integerLiteral: .random(in: 0..<50000000)),
+                    playerGamemode: 0,
+                    position: Vec3(x: 0, y: 0, z: 0),
+                    rotation: Vec2(x: 0, y: 0),
+                    settings: LevelSettings(try! NBTFile(fromFile: URL(string: "/home/david/swift_projects/SwineCraft_XP/Tests/SwineCraft_XPTests/Resources/level.dat")!).fileCompound) ,
+                    levelID: "300",
+                    levelName: "Default World",
+                    templateContentIdentity: "None",
+                    isTrial: false,
+                    movementSettings: SyncedPlayerMovementSettings(
+                        rewindHistorySize: 0,
+                        serverAuthoritativeBlockBreaking: true
+                    ),
+                    levelCurrentTime: 0,
+                    enchantmentSeed: VarInt(integerLiteral: .random(in: Int32.min..<Int32.max)),
+                    blockProperties: [],
+                    multiplayerCorrelationID: "\(UInt64.random(in: UInt64.min..<UInt64.max))",
+                    enableItemStackNetManager: true,
+                    serverVersion: "\(RakNetProtocolInfo.VERSION)",
+                    playerPropertyData: NBTCompound(),
+                    serverBlockTypeRegistryChecksum: UInt64.random(in: UInt64.min..<UInt64.max),
+                    worldTemplateID: UUID(),
+                    serverEnabledClientSideGeneration: false,
+                    blockTypesAreHashes: false,
+                    networkPermissions: NetworkPermissions(
+                        serverAuthSoundEnabled: true
+                    )
+                )
+
+                var startGameBuf = ByteBuffer()
+
+                compress(packet: startGamePacket, sourceAddress: sourceAddress, toBuffer: &startGameBuf)
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: startGameBuf)), promise: nil)
+
+                let creativeContentPacket = CreativeContentPacket()
+
+                var creativeContentBuf = ByteBuffer()
+                
+                compress(packet: creativeContentPacket, sourceAddress: sourceAddress, toBuffer: &creativeContentBuf)
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: creativeContentBuf)), promise: nil)
+
+                let biomeDefinitionListPacket = BiomeDefinitionListPacket()
+
+                var biomeDefinitionListBuf = ByteBuffer()
+                
+                compress(packet: biomeDefinitionListPacket, sourceAddress: sourceAddress, toBuffer: &biomeDefinitionListBuf)
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: biomeDefinitionListBuf)), promise: nil)
+
+                let levelChunkPacket = LevelChunkPacket(
+                    chunkPosition: Vec2(x: 50, y: 50),
+                    dimensionId: 0,
+                    useBlobHashes: false,
+                    serializedChunkData: ""
+                )
+
+                var levelChunkBuf = ByteBuffer()
+                
+                compress(packet: levelChunkPacket, sourceAddress: sourceAddress, toBuffer: &levelChunkBuf)
+
+                context.writeAndFlush(self.wrapOutboundOut(AddressedEnvelope(remoteAddress: inboundEnvelope.remoteAddress, data: levelChunkBuf)), promise: nil)
             case nil:
                 self.logger.error("UNKNOWN PACKET TYPE \(old_buffer)")
             default: 
