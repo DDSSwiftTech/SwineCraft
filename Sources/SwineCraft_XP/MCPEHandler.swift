@@ -232,6 +232,8 @@ class MCPEHandler: ChannelInboundHandler, @unchecked Sendable {
             var compressedBuf = compressor.compress(&packetBufWithLength)
 
             buf.writeBuffer(&compressedBuf)
+        } else {
+            self.logger.error("compression not set")
         }
     }
 }

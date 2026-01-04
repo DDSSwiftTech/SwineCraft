@@ -1,5 +1,6 @@
 import NIO
 import Foundation
+import Logging
 
 extension ChannelHandlerContext: @retroactive @unchecked Sendable {}
 
@@ -9,13 +10,14 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
     public typealias OutboundOut = AddressedEnvelope<ByteBuffer>
 
     private let SERVER_ID_STRING: String
+    private let logger = Logger(label: "RakNet")
 
     init(SERVER_ID_STRING: String) {
         self.SERVER_ID_STRING = SERVER_ID_STRING
     }
 
     public func channelActive(context: ChannelHandlerContext) {
-        // print("CHANNEL ACTIVE")
+        self.logger.debug("CHANNEL ACTIVE")
     }
 
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -96,9 +98,8 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                     for decapResultItem in decapsulationResult {
                         switch decapResultItem {
                             case .failure(let error):
-                                print(error)
+                                self.logger.error("\(error)")
                             case .success(var decapsulatedBuffer):
-
                                 self.processPacketBuffer(&decapsulatedBuffer, context: context, inboundEnvelope: inboundEnvelope)
                         }
                     }
@@ -180,7 +181,7 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                 }).whenComplete { _ in
                     let packet = DisconnectPacket()
 
-                    print("Received Disconnect: \(packet)")
+                    self.logger.debug("Received Disconnect: \(packet)")
 
                     context.fireUserInboundEventTriggered(RakNetEvent.DISCONNECTED(source: sourceAddress, reason: "Client-side disconnect"))
                 }
@@ -205,11 +206,11 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
                     context.writeAndFlush(self.wrapOutboundOut(Self.OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: try! result.get())), promise: nil)
                 }
             case .GAME_PACKET:
-                print("RECEIVED GAME PACKET")
+                self.logger.debug("RECEIVED GAME PACKET")
                 context.fireChannelRead(self.wrapInboundOut(OutboundOut(remoteAddress: inboundEnvelope.remoteAddress, data: buffer))) // for Minecraft, pass raw data, let it handle its own packets
                 buffer.clear()
             default:
-                print("UNHANDLED PACKET \(old_data.readableBytesView)")
+                self.logger.warning("UNHANDLED PACKET \(old_data.readableBytesView)")
                 buffer.clear()
                 return
         }
@@ -220,34 +221,33 @@ public final class RakNetHandler: ChannelInboundHandler, @unchecked Sendable {
     }
 
     public func handlerAdded(context: ChannelHandlerContext) {
-        print("HANDLER ADDED")
-        // print(context)
+        self.logger.debug("HANDLER ADDED")
     }
     public func channelInactive(context: ChannelHandlerContext) {
-        print("HANDLER INACTIVE")
+        self.logger.debug("HANDLER INACTIVE")
     }
 
     public func channelRegistered(context: ChannelHandlerContext) {
-        print("CHANNEL REGISTERED")
+        self.logger.debug("CHANNEL REGISTERED")
     }
 
     public func errorCaught(context: ChannelHandlerContext, error: any Swift.Error) {
-        print(context, error)
+        self.logger.error("\(context), \(error)")
     }
 
     public func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
-        print(context, event)
+        self.logger.error("\(context), \(event)")
     }
 
     func errorCaught(context: ChannelHandlerContext, error: RakNetError) {
-        print(context, error)
+        self.logger.error("\(context), \(error)")
     }
 
     public func channelUnregistered(context: ChannelHandlerContext) {
-        print("CHANNEL UNREGISTERED")
+        self.logger.debug("CHANNEL UNREGISTERED")
     }
 
     deinit {
-        print("Handler deinitializing")
+        self.logger.debug("Handler deinitializing")
     }
 }
