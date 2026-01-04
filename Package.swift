@@ -16,8 +16,13 @@ let package = Package(
         .package(url: "https://github.com/jpsim/Yams.git", from: "6.0.1")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        .systemLibrary(
+            name: "LevelDB",
+            pkgConfig: "leveldb",
+            providers: [
+                .apt(["libleveldb-dev"])
+            ]
+        ),
         .systemLibrary(
             name: "SwiftZlib",
             pkgConfig: "zlib"
@@ -44,6 +49,7 @@ let package = Package(
                 .target(name: "SwiftSnappy"),
                 .target(name: "SwiftNBT"),
                 .byName(name: "Yams"),
+                .byName(name: "LevelDB"),
                 .product(name: "Configuration", package: "swift-configuration"),
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "Crypto", package: "swift-crypto"),
